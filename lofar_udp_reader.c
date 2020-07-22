@@ -2620,7 +2620,7 @@ int lofar_udp_raw_udp_stokesI(lofar_udp_meta *meta) {
 				//#pragma omp simd 
 				#pragma GCC unroll 16 //UDPNTIMESLICE not defined at compile?
 				for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
-					outputData[tsOutOffset] = stokesI((signed short) inputPortData[tsInOffset], (signed short) inputPortData[tsInOffset + 2], (signed short) inputPortData[tsInOffset + 4], (signed short) inputPortData[tsInOffset + 6]);
+					outputData[tsOutOffset] = stokesI(*((signed short*) &(inputPortData[tsInOffset])), *((signed short*) &(inputPortData[tsInOffset + 2])), *((signed short*) &(inputPortData[tsInOffset + 4])), *((signed short*) &(inputPortData[tsInOffset + 6])));
 
 					tsInOffset += 4 * 2;
 					tsOutOffset += totalBeamlets;
