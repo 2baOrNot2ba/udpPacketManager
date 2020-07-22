@@ -519,7 +519,7 @@ int lofar_udp_setup_processing(lofar_udp_meta *meta) {
 		case 100:
 			meta->processFunc = &lofar_udp_raw_udp_stokesI;
 			meta->numOutputs = 1;
-			mulFactor = sizeof(float) / (4 * sizeof(char));
+			mulFactor = (float) sizeof(float) / (8 * sizeof(char));
 			break;
 		case 101:
 			meta->processFunc = &lofar_udp_raw_udp_stokesV;
@@ -2617,7 +2617,7 @@ int lofar_udp_raw_udp_stokesI(lofar_udp_meta *meta) {
 				tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL * 2;
 				tsOutOffset = outputPacketOffset + (totalBeamlets - beamlet - cumulativeBeamlets);
 
-				//#pragma omp simd 
+				//#pragma omp simd
 				#pragma GCC unroll 16 //UDPNTIMESLICE not defined at compile?
 				for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 					outputData[tsOutOffset] = stokesI(*((signed short int*) &(inputPortData[tsInOffset])), *((signed short int*) &(inputPortData[tsInOffset + 2])), *((signed short int*) &(inputPortData[tsInOffset + 4])), *((signed short int*) &(inputPortData[tsInOffset + 6])));
