@@ -710,6 +710,15 @@ int lofar_udp_reader_cleanup(const lofar_udp_reader *reader) {
 
 
 /**
+ * Potential optimisations for below:
+ * 2 worker threads per port, one reading data, the other performing decompression
+ * reader->inBuffer[port][data] -> reader->inBuffer[port][2][data], allowing for fast swapping as needed
+ * 
+ * resize the input inputData arrays to be multiples of the expected output length; will need
+ * 	to account for the tail, but will save a memcpy operation
+ */
+
+/**
  * @brief      Read a set amount of data to a given pointer on a given port.
  *             Supports standard files and decompressed files when
  *             reader->compressedReader == 1
@@ -967,6 +976,7 @@ int lofar_udp_reader_step(lofar_udp_reader *reader) {
 
 	return lofar_udp_reader_step_timed(reader, fakeTiming);
 }
+
 
 
 /**
@@ -2610,9 +2620,9 @@ int lofar_udp_raw_udp_stokesI(lofar_udp_meta *meta) {
 				//#pragma omp simd 
 				#pragma GCC unroll 16 //UDPNTIMESLICE not defined at compile?
 				for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
-					outputData[tsOutOffset] = stokesI((signed char) inputPortData[tsInOffset], (signed char) inputPortData[tsInOffset + 1], (signed char) inputPortData[tsInOffset + 2], (signed char) inputPortData[tsInOffset + 3]);
+					outputData[tsOutOffset] = stokesI((signed short) inputPortData[tsInOffset], (signed short) inputPortData[tsInOffset + 2], (signed short) inputPortData[tsInOffset + 4], (signed short) inputPortData[tsInOffset + 6]);
 
-					tsInOffset += 4;
+					tsInOffset += 4 * 2;
 					tsOutOffset += totalBeamlets;
 				}
 
