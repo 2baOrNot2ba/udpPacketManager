@@ -2609,14 +2609,13 @@ int lofar_udp_raw_udp_stokesI(lofar_udp_meta *meta) {
 
 			}
 
-			outputPacketOffset = iLoop * packetOutputLength / (sizeof(float) / sizeof(char));
+			outputPacketOffset = iLoop * packetOutputLength / (sizeof(float));
 
 			//#pragma omp parallel for schedule(dynamic, 31) // Expected sizes: 61, 122, 244
 			#pragma GCC unroll 61
 			for (int beamlet = 0; beamlet < portBeamlets; beamlet++) {
 				tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL * 2;
-				tsOutOffset = outputPacketOffset + (totalBeamlets - beamlet - cumulativeBeamlets);
-
+				tsOutOffset = outputPacketOffset + (totalBeamlets - beamlet - cumulativeBeamlets - 1);
 				//#pragma omp simd
 				#pragma GCC unroll 16 //UDPNTIMESLICE not defined at compile?
 				for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
@@ -2625,7 +2624,6 @@ int lofar_udp_raw_udp_stokesI(lofar_udp_meta *meta) {
 					tsInOffset += 4 * 2;
 					tsOutOffset += totalBeamlets;
 				}
-
 
 			}
 
