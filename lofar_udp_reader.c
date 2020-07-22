@@ -2614,13 +2614,13 @@ int lofar_udp_raw_udp_stokesI(lofar_udp_meta *meta) {
 			//#pragma omp parallel for schedule(dynamic, 31) // Expected sizes: 61, 122, 244
 			#pragma GCC unroll 61
 			for (int beamlet = 0; beamlet < portBeamlets; beamlet++) {
-				tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL;
+				tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL * 2;
 				tsOutOffset = outputPacketOffset + (totalBeamlets - beamlet - cumulativeBeamlets);
 
 				//#pragma omp simd 
 				#pragma GCC unroll 16 //UDPNTIMESLICE not defined at compile?
 				for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
-					outputData[tsOutOffset] = stokesI(*((signed short*) &(inputPortData[tsInOffset])), *((signed short*) &(inputPortData[tsInOffset + 2])), *((signed short*) &(inputPortData[tsInOffset + 4])), *((signed short*) &(inputPortData[tsInOffset + 6])));
+					outputData[tsOutOffset] = stokesI(*((signed short int*) &(inputPortData[tsInOffset])), *((signed short int*) &(inputPortData[tsInOffset + 2])), *((signed short int*) &(inputPortData[tsInOffset + 4])), *((signed short int*) &(inputPortData[tsInOffset + 6])));
 
 					tsInOffset += 4 * 2;
 					tsOutOffset += totalBeamlets;
