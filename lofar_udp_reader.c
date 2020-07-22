@@ -2609,7 +2609,7 @@ int lofar_udp_raw_udp_stokesI(lofar_udp_meta *meta) {
 
 			}
 
-			outputPacketOffset = iLoop * packetOutputLength / (sizeof(float) / sizeof(signed short int));
+			outputPacketOffset = iLoop * packetOutputLength / (sizeof(float) / sizeof(char));
 
 			//#pragma omp parallel for schedule(dynamic, 31) // Expected sizes: 61, 122, 244
 			#pragma GCC unroll 61
