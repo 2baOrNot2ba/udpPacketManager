@@ -767,6 +767,7 @@ long lofar_udp_reader_nchars(lofar_udp_reader *reader, const int port, char *tar
 			if (dataRead == nchars) return dataRead;
 		} else {
 			VERBOSE(if (reader->meta->VERBOSE) printf("reader_nchars: cache copy not needed, %ld, %ld\n", reader->decompressionTracker[port].pos, portOutputLength););
+			reader->decompressionTracker[port].pos = knownOffset;
 		}
 
 		// Loop until we hit an exit criteria (EOF / zstd error / nchars)
