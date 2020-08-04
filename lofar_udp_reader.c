@@ -253,7 +253,7 @@ int lofar_udp_skip_to_packet(lofar_udp_reader *reader) {
 		VERBOSE(printf("lofar_udp_skip_to_packet: exited loop, shifting data...\n"););
 
 		// Shift the data on the port as needed
-		returnVal = lofar_udp_shift_remainder_packets(reader->meta, packetShift, 0);
+		returnVal = lofar_udp_shift_remainder_packets(reader, packetShift, 0);
 		if (returnVal > 0) return 1;
 
 		// Find the amount of data needed, and read in new data to fill the gap left at the end of the array after the shift
@@ -873,7 +873,7 @@ int lofar_udp_reader_read_step(lofar_udp_reader *reader) {
 	}
 
 	// If packets were dropped, shift the remaining packets back to the start of the array
-	if ((checkReturnValue = lofar_udp_shift_remainder_packets(reader->meta, reader->meta->portLastDroppedPackets, 1)) > 0) return 1;
+	if ((checkReturnValue = lofar_udp_shift_remainder_packets(reader, reader->meta->portLastDroppedPackets, 1)) > 0) return 1;
 	//else if (checkReturnValue < 0) if(lofar_udp_realign_data(reader) > 0) return 1;
 	
 	// Read in the required new data
@@ -1012,7 +1012,7 @@ int lofar_udp_get_first_packet_alignment(lofar_udp_reader *reader) {
 		for (int port = 0; port < reader->meta->numPorts; port++) shiftPackets[port] = reader->meta->packetsPerIteration - reader->meta->portLastDroppedPackets[port];
 
 		// Perform the shift operation, return if no shift occured
-		returnVal = lofar_udp_shift_remainder_packets(reader->meta, shiftPackets, 0);
+		returnVal = lofar_udp_shift_remainder_packets(reader, shiftPackets, 0);
 		VERBOSE(if (reader->meta->VERBOSE) printf("Packets shifted, returnVal %d\n", returnVal));
 		if (returnVal > 0) return returnVal;
 
@@ -1247,7 +1247,7 @@ int lofar_udp_realign_data(lofar_udp_reader *reader) {
  * @return     int: 0: Success, -1: Negative shift requested, out
  *             of order data on last gulp,
  */
-int lofar_udp_shift_remainder_packets(lofar_udp_meta *meta, const int shiftPackets[], const int handlePadding) {
+int lofar_udp_shift_remainder_packets(lofar_udp_reader *reader, const int shiftPackets[], const int handlePadding) {
 
 	int returnVal = 0;
 	int packetShift, destOffset, portPacketLength;
@@ -1255,6 +1255,8 @@ int lofar_udp_shift_remainder_packets(lofar_udp_meta *meta, const int shiftPacke
 
 	char *inputData;
 	int totalShift = 0;
+
+	lofar_udp_meta *meta = reader->meta;
 	
 
 	// Check if we have any work to do, reset offsets, exit if no work requested
@@ -1294,6 +1296,13 @@ int lofar_udp_shift_remainder_packets(lofar_udp_meta *meta, const int shiftPacke
 			sourceOffset = meta->portPacketLength[port] * (meta->packetsPerIteration - packetShift - handlePadding); // Verify -1...
 			destOffset = -1 * portPacketLength * handlePadding;
 			byteShift = sizeof(char) * (packetShift + handlePadding) * portPacketLength;
+
+			if (reader->compressedReader) {
+				if (reader->decompressionTracker[port].pos > meta->portPacketLength[port] * meta->packetsPerIteration) {
+					byteShift += reader->decompressionTracker[port].pos - meta->portPacketLength[port] * meta->packetsPerIteration;
+					reader->decompressionTracker[port].pos = destOffset + byteShift;
+				}
+			}
 
 			VERBOSE(if (meta->VERBOSE) printf("SO: %ld, DO: %d, BS: %ld IDO: %ld\n", sourceOffset, destOffset, byteShift, destOffset + byteShift));
 
