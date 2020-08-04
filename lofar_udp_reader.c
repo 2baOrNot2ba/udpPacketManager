@@ -743,9 +743,9 @@ long lofar_udp_reader_nchars(lofar_udp_reader *reader, const int port, char *tar
 			VERBOSE(if (reader->meta->VERBOSE) printf("reader_nchars: Compressed %d %ld/%ld: %ld %ld %ld %ld %ld\n", port, dataRead, nchars, reader->decompressionTracker[port].pos, reader->decompressionTracker[port].size, reader->readingTracker[port].pos, reader->readingTracker[port].size, portOutputLength));
 
 			// If the amount of requested data is greater than the amount of data in the buffer
-			if (nchars > ((int) reader->decompressionTracker[port].pos - (int) portOutputLength)) {
+			if (nchars > ((long int) reader->decompressionTracker[port].pos - (long int) portOutputLength)) {
 				// Read the remainder of the buffer, update the new offset location to be after this block of data
-				byteDelta = (int) reader->decompressionTracker[port].pos - (int) portOutputLength;
+				byteDelta = (long int) reader->decompressionTracker[port].pos - (long int) portOutputLength;
 				reader->decompressionTracker[port].pos = byteDelta + knownOffset;
 			} else {
 				// Read only what we need, update the new offset to it's new position
@@ -789,7 +789,7 @@ long lofar_udp_reader_nchars(lofar_udp_reader *reader, const int port, char *tar
 
 					// Determine how much data we need to copy from the buffer
 					byteDelta = ((long int) reader->decompressionTracker[port].pos - (long int) previousDecompressionPos);
-					if ((dataRead + byteDelta) >= (unsigned int) nchars) byteDelta = nchars - dataRead;
+					if ((dataRead + byteDelta) >= (unsigned long int) nchars) byteDelta = nchars - dataRead;
 					
 					/*else {
 						dataRead += byteDelta;
