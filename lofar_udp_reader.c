@@ -732,7 +732,7 @@ long lofar_udp_reader_nchars(lofar_udp_reader *reader, const int port, char *tar
 		// Compressed file: Perform streaming decompression on a zstandard compressed file
 		VERBOSE(if (reader->meta->VERBOSE) printf("reader_nchars: Entering read request (compressed): %d, %ld\n", port, nchars));
 
-		long dataRead = 0, portOutputLength = reader->meta->packetsPerIteration * reader->meta->portPacketLength[port];
+		long dataRead = 0, portOutputLength = reader->packetsPerIteration * reader->meta->portPacketLength[port];
 		size_t previousDecompressionPos = 0;
 		int compDataRead = 0, byteDelta = 0, returnVal = 0;
 		// ZSTD decompress + pass along data to normal input channel
