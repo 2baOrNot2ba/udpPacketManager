@@ -32,7 +32,7 @@
 #define OMP_THREADS 5 // 1 extra as a master
 #define OMP_NUM_THREADS OMP_THREADS
 #define OMP_NESTED TRUE
-#define ZSTD_BUFFERMUL 128
+#define ZSTD_BUFFERMUL 65536
 #define ALIGNMENT_LENGTH 1024
 #endif
 

@@ -311,7 +311,7 @@ lofar_udp_reader* lofar_udp_file_reader_setup(FILE **inputFiles, lofar_udp_meta 
 
 			// Setup the decompressed data buffer/struct
 			bufferSize = meta->packetsPerIteration * meta->portPacketLength[port];
-			bufferSize += bufferSize % (ZSTD_DStreamOutSize() * ZSTD_BUFFERMUL);
+			bufferSize += bufferSize % ZSTD_DStreamOutSize();
 			reader.decompressionTracker[port].size = bufferSize;
 			reader.decompressionTracker[port].pos = 0; // Initialisation for our step-by-step reader
 			reader.decompressionTracker[port].dst = reader.meta->inputData[port];
@@ -646,7 +646,7 @@ lofar_udp_reader* lofar_udp_meta_file_reader_setup(FILE **inputFiles, const int 
 	for (int port = 0; port < meta.numPorts; port++) {
 		// Ofset input by 2 for a zero/buffer packet on boundary
 		// If we have a compressed reader, align the length with the ZSTD buffer sizes
-		bufferSize = (meta.portPacketLength[port] * (meta.packetsPerIteration)) % (ZSTD_DStreamOutSize() * ZSTD_BUFFERMUL);
+		bufferSize = (meta.portPacketLength[port] * (meta.packetsPerIteration)) % ZSTD_DStreamOutSize();
 		meta.inputData[port] = calloc(meta.portPacketLength[port] * (meta.packetsPerIteration + 2) + bufferSize * compressedReader, sizeof(char)) + (meta.portPacketLength[port] * 2);
 
 		// Initalise these arrays while we're looping
