@@ -474,7 +474,7 @@ int main(int argc, char  *argv[]) {
 
 			CLICK(tock0);
 			if (localLoops == 0) timing[0] = TICKTOCK(tick0, tock0) - timing[1]; // _file_reader_step or _reader_reuse does first I/O operation; approximate the time here
-			if (silent == 0) printf("Read complete for operation %d after %f seconds (I/O: %lf, MemOps: %lf), return value: %d\nWriting to disk... ", loops, TICKTOCK(tick0, tock0), timing[0], timing[1], returnVal);
+			if (silent == 0) printf("Read complete for operation %d after %f seconds (I/O: %lf, MemOps: %lf), return value: %d\n", loops, TICKTOCK(tick0, tock0), timing[0], timing[1], returnVal);
 			
 			totalReadTime += timing[0];
 			totalOpsTime += timing[1];
@@ -497,7 +497,7 @@ int main(int argc, char  *argv[]) {
 			if (silent == 0) {
 				timing[0] = 9.;
 				timing[1] = 0.;
-				printf("completed for operation %d after %f seconds.\n", loops, TICKTOCK(tick0, tock0));
+				printf("Disk writes completed for operation %d after %f seconds.\n", loops, TICKTOCK(tick0, tock0));
 				if (returnVal < 0) 
 					for(int port = 0; port < reader->meta->numPorts; port++)
 						if (reader->meta->portLastDroppedPackets[port] != 0)
