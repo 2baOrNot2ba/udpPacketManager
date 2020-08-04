@@ -733,6 +733,7 @@ long lofar_udp_reader_nchars(lofar_udp_reader *reader, const int port, char *tar
 		VERBOSE(if (reader->meta->VERBOSE) printf("reader_nchars: Entering read request (compressed): %d, %ld\n", port, nchars));
 
 		long dataRead = 0, portOutputLength = reader->meta->packetsPerIteration * reader->meta->portPacketLength[port];
+		size_t previousDecompressionPos = 0;
 		int compDataRead = 0, byteDelta = 0, returnVal = 0;
 		// ZSTD decompress + pass along data to normal input channel
 
@@ -747,10 +748,10 @@ long lofar_udp_reader_nchars(lofar_udp_reader *reader, const int port, char *tar
 				byteDelta = reader->decompressionTracker[port].pos - portOutputLength;
 				reader->decompressionTracker[port].pos = byteDelta + knownOffset;
 			} else {
-				// Read only what we need, updatte the new offset to it's new position
-				//byteDelta = nchars;
-				//reader->decompressionTracker[port].pos += nchars;
-				fprintf(stderr, "Unreachable target; something has gone wrong with decompression cache reuse (excessively small read) (%d: %ld, %ld, %ld, %ld, %ld). Exiting.\n", port, nchars, knownOffset, dataRead, reader->decompressionTracker[port].pos, reader->decompressionTracker[port].size);
+				// Read only what we need, update the new offset to it's new position
+				byteDelta = nchars;
+				reader->decompressionTracker[port].pos += nchars;
+				//fprintf(stderr, "Unreachable target; something has gone wrong with decompression cache reuse (excessively small read) (%d: %ld, %ld, %ld, %ld, %ld). Exiting.\n", port, nchars, knownOffset, dataRead, reader->decompressionTracker[port].pos, reader->decompressionTracker[port].size);
 
 			}
 
@@ -774,7 +775,7 @@ long lofar_udp_reader_nchars(lofar_udp_reader *reader, const int port, char *tar
 			if (reader->readingTracker[port].pos != reader->readingTracker[port].size) {
 				// Loop across while decompressing the data (zstd decompressed in frame iterations, so it may take a few iterations)
 				while (reader->readingTracker[port].pos < reader->readingTracker[port].size) {
-
+					previousDecompressionPos = reader->decompressionTracker[port].pos;
 					// zstd streaming decompression + check for errors
 					returnVal = ZSTD_decompressStream(reader->dstream[port], &(reader->decompressionTracker[port]), &(reader->readingTracker[port]));
 					if (ZSTD_isError(returnVal)) {
@@ -783,9 +784,11 @@ long lofar_udp_reader_nchars(lofar_udp_reader *reader, const int port, char *tar
 					}
 
 					// Determine how much data we need to copy from the buffer
-					if ((reader->decompressionTracker[port].pos - knownOffset) >= (unsigned int) nchars) byteDelta = nchars - dataRead;
+					byteDelta = (reader->decompressionTracker[port].pos - previousDecompressionPos);
+					if ((dataRead + byteDelta) >= (unsigned int) nchars) byteDelta = nchars - dataRead;
 					else {
-						fprintf(stderr, "Unreachable target; something has gone wrong with decompression (%d: %ld, %ld, %ld, %ld, %ld). Exiting.\n", port, nchars, knownOffset, dataRead, reader->decompressionTracker[port].pos, reader->decompressionTracker[port].size);
+						dataRead += byteDelta;
+						//fprintf(stderr, "Unreachable target; something has gone wrong with decompression (%d: %ld, %ld, %ld, %ld, %ld). Exiting.\n", port, nchars, knownOffset, dataRead, reader->decompressionTracker[port].pos, reader->decompressionTracker[port].size);
 					}
 
 					// Update the total data read + check if we have reached our goal
