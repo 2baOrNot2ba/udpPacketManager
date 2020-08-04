@@ -693,9 +693,11 @@ int lofar_udp_reader_cleanup(const lofar_udp_reader *reader) {
 
 	for (int i = 0; i < reader->meta->numPorts; i++) {
 		// Free input data pointer (from the correct offset)
-		VERBOSE(if(reader->meta->VERBOSE) printf("Freeing inputData, outputData, closing file on port %d\n", i););
+		VERBOSE(if(reader->meta->VERBOSE) printf("On port: %d freeing inputData\n", i););
 		free(reader->meta->inputData[i] - 2 * reader->meta->portPacketLength[i]);
 		// Close the input file
+		sleep(1);
+		VERBOSE(if(reader->meta->VERBOSE) printf("On port: %d closing file\n", i))
 		fclose(reader->fileRef[i]);
 		sleep(1);
 		if (reader->compressedReader) {
