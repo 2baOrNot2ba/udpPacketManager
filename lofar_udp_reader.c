@@ -648,6 +648,8 @@ lofar_udp_reader* lofar_udp_meta_file_reader_setup(FILE **inputFiles, const int 
 		// If we have a compressed reader, align the length with the ZSTD buffer sizes
 		bufferSize = (meta.portPacketLength[port] * (meta.packetsPerIteration)) % ZSTD_DStreamOutSize();
 		meta.inputData[port] = calloc(meta.portPacketLength[port] * (meta.packetsPerIteration + 2) + bufferSize * compressedReader, sizeof(char)) + (meta.portPacketLength[port] * 2);
+		printf("calloc at %p\n", meta.inputData[port] - (meta.portPacketLength[port] * 2));
+		sleep(3);
 
 		// Initalise these arrays while we're looping
 		meta.inputDataOffset[port] = 0;
@@ -693,7 +695,7 @@ int lofar_udp_reader_cleanup(const lofar_udp_reader *reader) {
 
 	for (int i = 0; i < reader->meta->numPorts; i++) {
 		// Free input data pointer (from the correct offset)
-		VERBOSE(if(reader->meta->VERBOSE) printf("On port: %d freeing inputData\n", i););
+		VERBOSE(if(reader->meta->VERBOSE) printf("On port: %d freeing inputData at %p\n", i, reader->meta->inputData[i] - 2 * reader->meta->portPacketLength[i]););
 		free(reader->meta->inputData[i] - 2 * reader->meta->portPacketLength[i]);
 		// Close the input file
 		sleep(1);
