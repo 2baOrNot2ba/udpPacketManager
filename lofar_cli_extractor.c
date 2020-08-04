@@ -213,7 +213,7 @@ int main(int argc, char  *argv[]) {
 	// Make sure mockHeader is on the path if we want to use it.
 	if (callMockHdr) {
 		printf("Checking for mockHeader on system path... ");
-		callMockHdr += system("which mockHeader"); // Add the return code (multiplied by 256 from bash return) to the execution variable, ensure it doesn't change
+		callMockHdr += system("which mockHeader > /tmp/udp_reader_mockheader.log 2>&1"); // Add the return code (multiplied by 256 from bash return) to the execution variable, ensure it doesn't change
 		printf("\n");
 		if (callMockHdr != 1) {
 			fprintf(stderr, "Error occured while attempting to find mockHeader, exiting.\n");
@@ -454,7 +454,7 @@ int main(int argc, char  *argv[]) {
 			
 			if (callMockHdr) {
 				if (processingMode == 2 || processingMode == 11 || processingMode == 21 || processingMode > 99) sprintf(mockHdrCmd, "mockHeader -tstart %lf -nchans %d %s %s", lofar_get_packet_time_mjd(reader->meta->inputData[0]), reader->meta->totalBeamlets, mockHdrArg, workingString);
-				else sprintf(mockHdrCmd, "mockHeader -tstart %lf -nchans %d %s %s", lofar_get_packet_time_mjd(reader->meta->inputData[0]), reader->meta->portBeamlets[out], mockHdrArg, workingString);
+				else sprintf(mockHdrCmd, "mockHeader -tstart %lf -nchans %d %s %s > /tmp/udp_reader_mockheader.log 2>&1", lofar_get_packet_time_mjd(reader->meta->inputData[0]), reader->meta->portBeamlets[out], mockHdrArg, workingString);
 				dummy = system(mockHdrCmd);
 
 				if (dummy != 0) fprintf(stderr, "Encountered error while calling mockHeader (%s), continuing with caution.\n", mockHdrCmd);
