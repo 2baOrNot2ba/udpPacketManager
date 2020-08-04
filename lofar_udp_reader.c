@@ -765,11 +765,14 @@ long lofar_udp_reader_nchars(lofar_udp_reader *reader, const int port, char *tar
 			
 			// Return if we have all the data we need
 			if (dataRead == nchars) return dataRead;
+		} else {
+			VERBOSE(if (reader->meta->VERBOSE) printf("reader_nchars: cache copy not needed, %ld, %ld\n", reader->decompressionTracker[port].pos, portOutputLength););
 		}
 
 		// Loop until we hit an exit criteria (EOF / zstd error / nchars)
 		// Suspicion after buffer changes: this might enter an infinite loop if the buffer isn't large enough to hold the data
 		while(1) {
+			VERBOSE(if (reader->meta>VERBOSE) printf("reader_nchars: start of read loop, %ld, %ld, %ld, %ld\n", reader->readingTracker[port].pos, reader->readingTracker[port].size, reader->decompressionTracker[port].pos, dataRead););
 
 			// Check the decompression stream for compressed data
 			if (reader->readingTracker[port].pos != reader->readingTracker[port].size) {
@@ -800,6 +803,8 @@ long lofar_udp_reader_nchars(lofar_udp_reader *reader, const int port, char *tar
 
 				}
 			}
+
+			VERBOSE(if (reader->meta->VERBOSE) printf("reader>nchars: mdddle of read loop, %ld, %ld, %ld, %ld\n", reader->readingTracker[port].pos, reader->readingTracker[port].size, reader->decompressionTracker[port].pos, dataRead););
 
 			// Check if the input buffer has been fully used
 			if (reader->readingTracker[port].pos == reader->readingTracker[port].size) {
