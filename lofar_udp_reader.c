@@ -772,7 +772,7 @@ long lofar_udp_reader_nchars(lofar_udp_reader *reader, const int port, char *tar
 		// Loop until we hit an exit criteria (EOF / zstd error / nchars)
 		// Suspicion after buffer changes: this might enter an infinite loop if the buffer isn't large enough to hold the data
 		while(1) {
-			VERBOSE(if (reader->meta>VERBOSE) printf("reader_nchars: start of read loop, %ld, %ld, %ld, %ld\n", reader->readingTracker[port].pos, reader->readingTracker[port].size, reader->decompressionTracker[port].pos, dataRead););
+			VERBOSE(if (reader->meta->VERBOSE) printf("reader_nchars: start of read loop, %ld, %ld, %ld, %ld\n", reader->readingTracker[port].pos, reader->readingTracker[port].size, reader->decompressionTracker[port].pos, dataRead););
 
 			// Check the decompression stream for compressed data
 			if (reader->readingTracker[port].pos != reader->readingTracker[port].size) {
