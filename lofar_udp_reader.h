@@ -226,7 +226,7 @@ int lofar_udp_get_first_packet_alignment_meta(lofar_udp_meta *meta);
 int lofar_udp_reader_step(lofar_udp_reader *reader);
 int lofar_udp_reader_step_timed(lofar_udp_reader *reader, double timing[2]);
 int lofar_udp_reader_read_step(lofar_udp_reader *reader);
-int lofar_udp_shift_remainder_packets(lofar_udp_meta *meta, const int shiftPackets[], const int handlePadding);
+int lofar_udp_shift_remainder_packets(lofar_udp_reader *reader, const int shiftPackets[], const int handlePadding);
 long lofar_udp_reader_nchars(lofar_udp_reader *reader, const int port, char *targetArray, const long nchars, const long knownOffset);
 //int lofar_udp_realign_data(lofar_udp_reader *reader);
 
