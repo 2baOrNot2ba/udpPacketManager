@@ -792,7 +792,7 @@ long lofar_udp_reader_nchars(lofar_udp_reader *reader, const int port, char *tar
 						//fprintf(stderr, "Unreachable target; something has gone wrong with decompression (%d: %ld, %ld, %ld, %ld, %ld). Exiting.\n", port, nchars, knownOffset, dataRead, reader->decompressionTracker[port].pos, reader->decompressionTracker[port].size);
 					}
 					*/
-					
+
 					// Update the total data read + check if we have reached our goal
 					dataRead += byteDelta;
 					if (dataRead == nchars) return dataRead;
@@ -1724,12 +1724,12 @@ int lofar_udp_raw_udp_copy_split_pols(lofar_udp_meta *meta) {
 			outputPacketOffset = iLoop * packetOutputLength;
 
 			//#pragma omp parallel for schedule(dynamic, 31) // Expected sizes: 61, 122, 244
-			#pragma GCC unroll 61
+			#pragma GCC unroll(61)
 			for (int beamlet = 0; beamlet < portBeamlets; beamlet++) {
 				tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL;
 				tsOutOffset = outputPacketOffset + (beamlet + cumulativeBeamlets) * UDPNTIMESLICE;
 
-				#pragma GCC unroll 16 //UDPNTIMESLICE not defined at compile?
+				#pragma GCC unroll(16) //UDPNTIMESLICE not defined at compile?
 				for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 					outputData[0][tsOutOffset] = inputPortData[tsInOffset]; // Xr
 					outputData[1][tsOutOffset] = inputPortData[tsInOffset + 1]; // Xi
@@ -1899,12 +1899,12 @@ int lofar_udp_raw_udp_reorder(lofar_udp_meta *meta) {
 			outputPacketOffset = iLoop * packetOutputLength;
 
 			//#pragma omp parallel for schedule(dynamic, 31) // Expected sizes: 61, 122, 244
-			#pragma GCC unroll 61
+			#pragma GCC unroll(61)
 			for (int beamlet = 0; beamlet < portBeamlets; beamlet++) {
 				tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL;
 				tsOutOffset = outputPacketOffset + (beamlet + cumulativeBeamlets) * UDPNPOL;
 
-				#pragma GCC unroll 16 //UDPNTIMESLICE not defined at compile?
+				#pragma GCC unroll(16) //UDPNTIMESLICE not defined at compile?
 				for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 					outputData[tsOutOffset] = inputPortData[tsInOffset]; // Xr
 					outputData[tsOutOffset + 1] = inputPortData[tsInOffset + 1]; // Xi
@@ -2073,12 +2073,12 @@ int lofar_udp_raw_udp_reorder_split_pols(lofar_udp_meta *meta) {
 			outputPacketOffset = iLoop * packetOutputLength;
 
 			//#pragma omp parallel for schedule(dynamic, 31) // Expected sizes: 61, 122, 244
-			#pragma GCC unroll 61
+			#pragma GCC unroll(61)
 			for (int beamlet = 0; beamlet < portBeamlets; beamlet++) {
 				tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL;
 				tsOutOffset = outputPacketOffset + beamlet + cumulativeBeamlets;
 
-				#pragma GCC unroll 16 //UDPNTIMESLICE not defined at compile?
+				#pragma GCC unroll(16) //UDPNTIMESLICE not defined at compile?
 				for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 					outputData[0][tsOutOffset] = inputPortData[tsInOffset]; // Xr
 					outputData[1][tsOutOffset] = inputPortData[tsInOffset + 1]; // Xi
@@ -2247,12 +2247,12 @@ int lofar_udp_raw_udp_reversed(lofar_udp_meta *meta) {
 			outputPacketOffset = iLoop * packetOutputLength;
 
 			//#pragma omp parallel for schedule(dynamic, 31) // Expected sizes: 61, 122, 244
-			#pragma GCC unroll 61
+			#pragma GCC unroll(61)
 			for (int beamlet = 0; beamlet < portBeamlets; beamlet++) {
 				tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL;
 				tsOutOffset = outputPacketOffset + (totalBeamlets - 1 - (beamlet + cumulativeBeamlets)) * UDPNPOL;
 
-				#pragma GCC unroll 16 //UDPNTIMESLICE not defined at compile?
+				#pragma GCC unroll(16) //UDPNTIMESLICE not defined at compile?
 				for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 					outputData[tsOutOffset] = inputPortData[tsInOffset]; // Xr
 					outputData[tsOutOffset + 1] = inputPortData[tsInOffset + 1]; // Xi
@@ -2421,11 +2421,11 @@ int lofar_udp_raw_udp_reversed_split_pols(lofar_udp_meta *meta) {
 			outputPacketOffset = iLoop * packetOutputLength;
 
 			//#pragma omp parallel for schedule(dynamic, 31) // Expected sizes: 61, 122, 244
-			#pragma GCC unroll 61
+			#pragma GCC unroll(61)
 			for (int beamlet = 0; beamlet < portBeamlets; beamlet++) {
 				tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL;
 				tsOutOffset = outputPacketOffset + (totalBeamlets - 1 - beamlet - cumulativeBeamlets);
-				#pragma GCC unroll 16 //UDPNTIMESLICE not defined at compile?
+				#pragma GCC unroll(16) //UDPNTIMESLICE not defined at compile?
 				for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 					outputData[0][tsOutOffset] = inputPortData[tsInOffset]; // Xr
 					outputData[1][tsOutOffset] = inputPortData[tsInOffset + 1]; // Xi
@@ -2609,13 +2609,13 @@ int lofar_udp_raw_udp_stokesI(lofar_udp_meta *meta) {
 			outputPacketOffset = iLoop * packetOutputLength / (sizeof(float) / sizeof(char));
 
 			//#pragma omp parallel for schedule(dynamic, 31) // Expected sizes: 61, 122, 244
-			#pragma GCC unroll 61
+			#pragma GCC unroll(61)
 			for (int beamlet = 0; beamlet < portBeamlets; beamlet++) {
 				tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL;
 				tsOutOffset = outputPacketOffset + (totalBeamlets - 1 - beamlet - cumulativeBeamlets);
 
 				//#pragma omp simd 
-				#pragma GCC unroll 16 //UDPNTIMESLICE not defined at compile?
+				#pragma GCC unroll(16) //UDPNTIMESLICE not defined at compile?
 				for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 					outputData[tsOutOffset] = stokesI((signed char) inputPortData[tsInOffset], (signed char) inputPortData[tsInOffset + 1], (signed char) inputPortData[tsInOffset + 2], (signed char) inputPortData[tsInOffset + 3]);
 
@@ -2783,14 +2783,14 @@ int lofar_udp_raw_udp_stokesI_sum16(lofar_udp_meta *meta) {
 			outputPacketOffset = iLoop * packetOutputLength / (sizeof(float) / sizeof(char));
 
 			//#pragma omp parallel for schedule(dynamic, 31) // Expected sizes: 61, 122, 244
-			#pragma GCC unroll 61
+			#pragma GCC unroll(61)
 			for (int beamlet = 0; beamlet < portBeamlets; beamlet++) {
 				tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL;
 				tsOutOffset = outputPacketOffset + (totalBeamlets - 1 - beamlet - cumulativeBeamlets);
 				tempVal = 0.0;
 
 				//#pragma omp simd 
-				#pragma GCC unroll 16 //UDPNTIMESLICE not defined at compile?
+				#pragma GCC unroll(16) //UDPNTIMESLICE not defined at compile?
 				for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 					tempVal += stokesI((signed char) inputPortData[tsInOffset], (signed char) inputPortData[tsInOffset + 1], (signed char) inputPortData[tsInOffset + 2], (signed char) inputPortData[tsInOffset + 3]);
 
@@ -2974,13 +2974,13 @@ int lofar_udp_raw_udp_stokesV(lofar_udp_meta *meta) {
 			outputPacketOffset = iLoop * packetOutputLength / (sizeof(float) / sizeof(char));
 
 			//#pragma omp parallel for schedule(dynamic, 31) // Expected sizes: 61, 122, 244
-			#pragma GCC unroll 61
+			#pragma GCC unroll(61)
 			for (int beamlet = 0; beamlet < portBeamlets; beamlet++) {
 				tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL;
 				tsOutOffset = outputPacketOffset + (totalBeamlets - 1 - beamlet - cumulativeBeamlets);
 
 				//#pragma omp simd
-				#pragma GCC unroll 16 //UDPNTIMESLICE not defined at compile?
+				#pragma GCC unroll(16) //UDPNTIMESLICE not defined at compile?
 				for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 					outputData[tsOutOffset] = stokesV((signed char) inputPortData[tsInOffset], (signed char) inputPortData[tsInOffset + 1], (signed char) inputPortData[tsInOffset + 2], (signed char) inputPortData[tsInOffset + 3]);
 
