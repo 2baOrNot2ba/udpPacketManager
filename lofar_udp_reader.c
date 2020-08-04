@@ -697,7 +697,7 @@ int lofar_udp_reader_cleanup(const lofar_udp_reader *reader) {
 		free(reader->meta->inputData[i] - 2 * reader->meta->portPacketLength[i]);
 		// Close the input file
 		fclose(reader->fileRef[i]);
-
+		sleep(1);
 		if (reader->compressedReader) {
 			// Free the decomression stream
 			VERBOSE(if(reader->meta->VERBOSE) printf("Freeing decompression buffers and ZSTD stream on port %d\n", i););
@@ -705,7 +705,7 @@ int lofar_udp_reader_cleanup(const lofar_udp_reader *reader) {
 			// Free the decompression input buffer
 			free(reader->inBuffer[i]);
 		}
-
+		sleep(1);
 	}
 
 	return 0;
