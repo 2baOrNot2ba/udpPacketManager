@@ -136,6 +136,7 @@ typedef struct lofar_udp_meta {
 
 	// Track the output metatdata
 	int numOutputs;
+	int outputBitMode;
 	int packetOutputLength[MAX_OUTPUT_DIMS];
 
 
@@ -179,10 +180,8 @@ typedef struct lofar_udp_reader {
 	ZSTD_inBuffer readingTracker[MAX_NUM_PORTS];
 	ZSTD_outBuffer decompressionTracker[MAX_NUM_PORTS];
 
+	// ZSTD Raw data input buffer
 	char* inBuffer[MAX_NUM_PORTS];
-	char* outBuffer[MAX_NUM_PORTS];
-	// Offset within the decompressed buffer for partial reads
-	unsigned long int outPtrOffset[MAX_NUM_PORTS];
 
 	// Cache the constant length for the arrays malloc'd by the reader, will be used to reset meta
 	long packetsPerIteration;
@@ -228,7 +227,7 @@ int lofar_udp_reader_step(lofar_udp_reader *reader);
 int lofar_udp_reader_step_timed(lofar_udp_reader *reader, double timing[2]);
 int lofar_udp_reader_read_step(lofar_udp_reader *reader);
 int lofar_udp_shift_remainder_packets(lofar_udp_meta *meta, const int shiftPackets[], const int handlePadding);
-long lofar_udp_reader_nchars(lofar_udp_reader *reader, const int port, char *targetArray, const long nchars);
+long lofar_udp_reader_nchars(lofar_udp_reader *reader, const int port, char *targetArray, const long nchars, const long knownOffset);
 //int lofar_udp_realign_data(lofar_udp_reader *reader);
 
 
