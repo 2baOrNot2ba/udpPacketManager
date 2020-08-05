@@ -2598,22 +2598,21 @@ int lofar_udp_raw_udp_stokesI(lofar_udp_meta *meta) {
 			} else {
 				VERBOSE(if (verbose) printf("Packet %ld is the expected packet.\n", currentPortPacket));
 
-				// We have a sequential packet, therefore:
-				//		Update the last legitimate packet number and array offset index
-				//		Increment iWork (input data packet index) and determine the new input offset
-				//		Get the next packet number for the next loop
-				lastInputPacketOffset = ((iWork - 1) * portPacketLength) + UDPHDRLEN;
-				lastPortPacket = currentPortPacket;
-
-				inputPacketOffset = iWork * portPacketLength;
-
-
 				// Speedup: add 4 to the sequence, check if accurate. Doesn't work at rollover.
 				if  (((char_unsigned_int*) &(inputPortData[inputPacketOffset + 12]))->ui  == (((char_unsigned_int*) &(inputPortData[lastInputPacketOffset -4])))->ui + 16)  {
 					currentPortPacket += 1;
 				} else currentPortPacket = lofar_get_packet_number(&(inputPortData[inputPacketOffset]));
+				
+				// We have a sequential packet, therefore:
+				//		Update the last legitimate packet number and array offset index
+				//		Increment iWork (input data packet index) and determine the new input offset
+				//		Get the next packet number for the next loop
+				lastInputPacketOffset = inputPacketOffset + UDPHDRLEN;
+				lastPortPacket = currentPortPacket;
 
 				iWork++;
+				inputPacketOffset = iWork * portPacketLength;
+
 			}
 
 			outputPacketOffset = iLoop * packetOutputLength / (sizeof(float) / sizeof(char));
