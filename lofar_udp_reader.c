@@ -639,7 +639,7 @@ lofar_udp_reader* lofar_udp_meta_file_reader_setup(FILE **inputFiles, const int 
 		// If we have a compressed reader, align the length with the ZSTD buffer sizes
 		bufferSize = (meta.portPacketLength[port] * (meta.packetsPerIteration)) % ZSTD_DStreamOutSize();
 		meta.inputData[port] = calloc(meta.portPacketLength[port] * (meta.packetsPerIteration + 2) + bufferSize * compressedReader, sizeof(char)) + (meta.portPacketLength[port] * 2);
-		VERBOSE(if(meta->verbose) printf("calloc at %p\n", meta.inputData[port] - (meta.portPacketLength[port] * 2)););
+		VERBOSE(if(meta.verbose) printf("calloc at %p\n", meta.inputData[port] - (meta.portPacketLength[port] * 2)););
 
 		// Initalise these arrays while we're looping
 		meta.inputDataOffset[port] = 0;
@@ -699,7 +699,6 @@ int lofar_udp_reader_cleanup(const lofar_udp_reader *reader) {
 			// Free the decompression input buffer
 			free(reader->inBuffer[i]);
 		}
-		sleep(1);
 	}
 
 	return 0;
@@ -782,8 +781,8 @@ long lofar_udp_reader_nchars(lofar_udp_reader *reader, const int port, char *tar
 					}
 
 					// Determine how much data we need to copy from the buffer
-					byteDelta = ((long int) reader->decompressionTracker[port].pos - (long int) previousDecompressionPos);
-					if ((dataRead + byteDelta) >= (unsigned long int) nchars) byteDelta = nchars - dataRead;
+					byteDelta = ((long) reader->decompressionTracker[port].pos - (long) previousDecompressionPos);
+					if ((long) (dataRead + byteDelta) >= nchars) byteDelta = nchars - dataRead;
 					
 					/*else {
 						dataRead += byteDelta;
