@@ -475,21 +475,18 @@ int lofar_udp_setup_processing(lofar_udp_meta *meta) {
 		case 0:
 			meta->processFunc = &lofar_udp_raw_udp_copy;
 			meta->numOutputs = meta->numPorts;
-			meta->outputBitMode = meta->inputBitMode[0];
 			hdrOffset = 0; // include header
 			equalIO = 1;
 			break;
 		case 1:
 			meta->processFunc = &lofar_udp_raw_udp_copy_nohdr;
 			meta->numOutputs = meta->numPorts;
-			meta->outputBitMode = meta->inputBitMode[0];
 			equalIO = 1;
 			break;
 
 		case 2:
 			meta->processFunc = &lofar_udp_raw_udp_copy_split_pols;
 			meta->numOutputs = UDPNPOL;
-			meta->outputBitMode = meta->inputBitMode[0];
 
 			break;
 
@@ -497,44 +494,38 @@ int lofar_udp_setup_processing(lofar_udp_meta *meta) {
 		case 10:
 			meta->processFunc = &lofar_udp_raw_udp_reorder;
 			meta->numOutputs = 1;
-			meta->outputBitMode = meta->inputBitMode[0];
 			break;
 		case 11:
 			meta->processFunc = &lofar_udp_raw_udp_reorder_split_pols;
 			meta->numOutputs = UDPNPOL;
-			meta->outputBitMode = meta->inputBitMode[0];
 			break;
 
 
 		case 20:
 			meta->processFunc = &lofar_udp_raw_udp_reversed;
 			meta->numOutputs = 1;
-			meta->outputBitMode = meta->inputBitMode[0];
 			break;
 		case 21:
 			meta->processFunc = &lofar_udp_raw_udp_reversed_split_pols;
 			meta->numOutputs = UDPNPOL;
-			meta->outputBitMode = meta->inputBitMode[0];
 			break;
-
 
 		case 100:
 			meta->processFunc = &lofar_udp_raw_udp_stokesI;
 			meta->numOutputs = 1;
-			meta->outputBitMode = 32;
+			mulFactor = sizeof(float) / (4 * sizeof(char));
 			break;
 		case 101:
 			meta->processFunc = &lofar_udp_raw_udp_stokesV;
 			meta->numOutputs = 1;
-			meta->outputBitMode = 32;
+			mulFactor = sizeof(float) / (4 * sizeof(char));
 			break;
 
 
 		case 120:
 			meta->processFunc = &lofar_udp_raw_udp_stokesI_sum16;
 			meta->numOutputs = 1;
-			mulFactor = (float) 1.0 / 16.0;
-			meta->outputBitMode = 32;
+			mulFactor = (float) (sizeof(float) / (4 * sizeof(char))) / 16.0;
 			break;
 
 		default:
@@ -550,7 +541,7 @@ int lofar_udp_setup_processing(lofar_udp_meta *meta) {
 		}
 	} else {
 		for (int port = 0; port < meta->numPorts; port++) workingData += hdrOffset + meta->portPacketLength[port];
-		workingData =  (int) (workingData * ((float) meta->inputBitMode[0] /  (float) meta->outputBitMode) * mulFactor);
+		workingData =  (int) workingData * mulFactor;
 		workingData /= meta->numOutputs;
 
 		for (int out = 0; out < meta->numOutputs; out++ ) { 
@@ -648,8 +639,7 @@ lofar_udp_reader* lofar_udp_meta_file_reader_setup(FILE **inputFiles, const int 
 		// If we have a compressed reader, align the length with the ZSTD buffer sizes
 		bufferSize = (meta.portPacketLength[port] * (meta.packetsPerIteration)) % ZSTD_DStreamOutSize();
 		meta.inputData[port] = calloc(meta.portPacketLength[port] * (meta.packetsPerIteration + 2) + bufferSize * compressedReader, sizeof(char)) + (meta.portPacketLength[port] * 2);
-		printf("calloc at %p\n", meta.inputData[port] - (meta.portPacketLength[port] * 2));
-		sleep(3);
+		VERBOSE(if(meta->verbose) printf("calloc at %p\n", meta.inputData[port] - (meta.portPacketLength[port] * 2)););
 
 		// Initalise these arrays while we're looping
 		meta.inputDataOffset[port] = 0;
@@ -697,11 +687,11 @@ int lofar_udp_reader_cleanup(const lofar_udp_reader *reader) {
 		// Free input data pointer (from the correct offset)
 		VERBOSE(if(reader->meta->VERBOSE) printf("On port: %d freeing inputData at %p\n", i, reader->meta->inputData[i] - 2 * reader->meta->portPacketLength[i]););
 		free(reader->meta->inputData[i] - 2 * reader->meta->portPacketLength[i]);
+
 		// Close the input file
-		sleep(1);
 		VERBOSE(if(reader->meta->VERBOSE) printf("On port: %d closing file\n", i))
 		fclose(reader->fileRef[i]);
-		sleep(1);
+
 		if (reader->compressedReader) {
 			// Free the decomression stream
 			VERBOSE(if(reader->meta->VERBOSE) printf("Freeing decompression buffers and ZSTD stream on port %d\n", i););
@@ -2580,8 +2570,10 @@ int lofar_udp_raw_udp_stokesI(lofar_udp_meta *meta) {
 					currentPacketsDropped -= 1;
 
 					iWork++;
-					inputPacketOffset = iWork * portPacketLength;
-					currentPortPacket = lofar_get_packet_number(&(inputPortData[inputPacketOffset]));
+					if (iWork != packetsPerIteration) {
+						inputPacketOffset = iWork * portPacketLength;
+						currentPortPacket = lofar_get_packet_number(&(inputPortData[inputPacketOffset]));
+					}
 					continue;
 
 				}
