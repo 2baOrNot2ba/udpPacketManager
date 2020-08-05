@@ -638,8 +638,8 @@ lofar_udp_reader* lofar_udp_meta_file_reader_setup(FILE **inputFiles, const int 
 		// Ofset input by 2 for a zero/buffer packet on boundary
 		// If we have a compressed reader, align the length with the ZSTD buffer sizes
 		bufferSize = (meta.portPacketLength[port] * (meta.packetsPerIteration)) % ZSTD_DStreamOutSize();
-		meta.inputData[port] = calloc(meta.portPacketLength[port] * (meta.packetsPerIteration + 3) + bufferSize * compressedReader, sizeof(char)) + (meta.portPacketLength[port] * 2);
-		VERBOSE(if(meta.VERBOSE) printf("calloc at %p for %ld +(%ld) bytes\n", meta.inputData[port] - (meta.portPacketLength[port] * 2), meta.portPacketLength[port] * (meta.packetsPerIteration + 3) + bufferSize * compressedReader - meta.portPacketLength[port] * 2, meta.portPacketLength[port] * 2););
+		meta.inputData[port] = calloc(meta.portPacketLength[port] * (meta.packetsPerIteration + 2) + bufferSize * compressedReader, sizeof(char)) + (meta.portPacketLength[port] * 2);
+		VERBOSE(if(meta.VERBOSE) printf("calloc at %p for %ld +(%ld) bytes\n", meta.inputData[port] - (meta.portPacketLength[port] * 2), meta.portPacketLength[port] * (meta.packetsPerIteration + 2) + bufferSize * compressedReader - meta.portPacketLength[port] * 2, meta.portPacketLength[port] * 2););
 
 		// Initalise these arrays while we're looping
 		meta.inputDataOffset[port] = 0;
@@ -2602,10 +2602,9 @@ int lofar_udp_raw_udp_stokesI(lofar_udp_meta *meta) {
 				//		Update the last legitimate packet number and array offset index
 				//		Increment iWork (input data packet index) and determine the new input offset
 				//		Get the next packet number for the next loop
-				lastInputPacketOffset = inputPacketOffset + UDPHDRLEN;
+				lastInputPacketOffset = ((iWork - 1) * portPacketLength) + UDPHDRLEN;
 				lastPortPacket = currentPortPacket;
 
-				iWork++;
 				inputPacketOffset = iWork * portPacketLength;
 
 
@@ -2614,6 +2613,7 @@ int lofar_udp_raw_udp_stokesI(lofar_udp_meta *meta) {
 					currentPortPacket += 1;
 				} else currentPortPacket = lofar_get_packet_number(&(inputPortData[inputPacketOffset]));
 
+				iWork++;
 			}
 
 			outputPacketOffset = iLoop * packetOutputLength / (sizeof(float) / sizeof(char));
