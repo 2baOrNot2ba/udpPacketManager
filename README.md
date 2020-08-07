@@ -5,7 +5,7 @@ udpPacketManager is a C library developed to handle reading and processing packe
 
 This library allows for the entire or partial extraction and processing of LOFAR CEP packet streams, re-aligning data to account for packet loss or misalignment on the first packet, to produce one of several data products, ranging from raw votlages (reordered or not) to stokes vector outputs.
 
-A guide on how to integrate the software in your project is provided in the **README_INTEGRATION.md** file, and example implementations can be found in the provided **lofar_cli_extractor.c** program and my fork of Cees Bassa's GPU coherent dedispersion software [CDMT](https://github.com/David-McKenna/cdmt) for use with raw data captures.
+A guide on how to integrate the software in your project is provided in the [**README_INTEGRATION.md**](README_INTEGRATION.md) file, and example implementations can be found in the provided [**lofar_cli_extractor.c**](lofar_cli_extractor.c) program and my fork of Cees Bassa's GPU coherent dedispersion software [CDMT](https://github.com/David-McKenna/cdmt) for use with raw data captures.
 
 Caveats & TODOs
 -------
@@ -20,13 +20,16 @@ Future work should not break the exiting load/process iteration loop, and may co
 - Implementing 4-bit
 - Creating a wrapper python library to allow for easer interfacing within python scripts rather than requiring a C program (CFFI if I can strip out ifdefs?)
 - Add some 'defaults' into the mockHeader input, such as a "-mode5" string converted to implement the default sampling time and frequencies used
+- Investigating [blosc](https://github.com/Blosc/) [(examples link)](https://github.com/Blosc/c-blosc2/tree/master/examples) as an option to speed up some processing modes
 
 Requirements
 ------------
 
 ### Building / Using the Library
-- Modern C and C++ compilers with OpenMP and C++17 support (gcc/g++-9 used for development, icc/icpc compatible)
+- Modern C and C++ compilers with OpenMP and C++17 support (gcc/g++-9 used for development, icc/icpc-2021.01 also tested and optimal)
 - Zstandard libary/development headers (ver > 1.3, libzstd-dev on Ubuntu 18.04+, libzstd1-dev on Ubuntu 16.04, may require the restricted toolchain PPA)
+
+While we support both gcc and icc, they have different execution paths. Due to differences in the OpenMP libraries between GOMP and Intel's OpenMP, the icc code path is up to a factor of 2.5 faster in non-stokes processing methods and advised as the compiler as a result.
 
 ### Building / Using the Example CLI
 As well as the requirements for building the library, the CLI (optionally) depends on
@@ -41,4 +44,4 @@ Once the pre-requists are met, a simple `make all` should suffice to build the l
 
 Usage
 -----
-Please see the *README_INTEGRATION.md* file for a guide to implementing the library in your software, and the *README_CLI.md* file for the usage guide for the provided CLI.
+Please see the [*README_INTEGRATION.md*](README_INTEGRATION.md) file for a guide to implementing the library in your software, and the [*README_CLI.md*](README_CLI.md) file for the usage guide for the provided CLI.

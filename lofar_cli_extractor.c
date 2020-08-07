@@ -21,6 +21,10 @@ extern const float clock200MHzSteps;
 extern const float clock160MHzSteps;
 extern const float clockStepsDelta;
 
+const double clock200MHzSample = 1.0 / clock200MHzSteps;
+const double clock160MHzSample = 1.0 / clock160MHzSteps;
+
+
 // Exit reasons, 0, 1 aren't handled, only defined up to 3
 const char exitReasons[4][1024] = {"", "",
 							 "Reached the packet limit set at start-up",
@@ -41,7 +45,7 @@ void helpMessages() {
 	printf("-e: <fileName>	Specify a file of events to extract; newline separated start time and durations in seconds. Events must not overlap.\n");
 	printf("-p: <mode>		Processing mode, options listed below (default: 0)\n");
 	printf("-r:		Replay the previous packet when a dropped packet is detected (default: 0 pad)\n");
-	printf("-c:		Used in combination with '-t' if the recorded data is mode 4/6 (160MHz clock) (default: False)\n");
+	printf("-c:		Change to the alternative clock used for modes 4/6 (160MHz clock) (default: False)\n");
 	printf("-q:		Enable silent mode for the CLI, don't print any information outside of library error messes (default: False)\n");
 	printf("-a: <args>		Call mockHeader with the specific flags to prefix output files with a header (default: False)\n");
 	printf("-f:		Append files if they already exist (default: False, exit if exists)\n");
@@ -76,6 +80,7 @@ int main(int argc, char  *argv[]) {
 	// Set up input local variables
 	int inputOpt, outputFilesCount, input = 0;
 	float seconds = 0.0;
+	double sampleTime = 0.0;
 	char inputFormat[256] = "./%d", outputFormat[256] = "./output%d_%s_%ld", inputTime[256] = "", eventsFile[256] = "", stringBuff[128], mockHdrArg[2048] = "", mockHdrCmd[4096] = "";
 	int ports = 4, processingMode = 0, replayDroppedPackets = 0, verbose = 0, silent = 0, appendMode = 0, compressedReader = 0, eventCount = 0, returnCounter = 0, callMockHdr = 0;
 	long packetsPerIteration = 65536, maxPackets = -1, startingPacket = -1;
@@ -219,6 +224,11 @@ int main(int argc, char  *argv[]) {
 		if (callMockHdr != 1) {
 			fprintf(stderr, "Error occured while attempting to find mockHeader, exiting.\n");
 			return 1;
+		}
+
+		sampleTime = clock160MHzSample * (1 - clock200MHz) + clock200MHzSample * clock200MHz;
+		if (processingMode > 100) {
+			sampleTime *= 1 << ((processingMode % 10));
 		}
 	}
 
@@ -455,8 +465,8 @@ int main(int argc, char  *argv[]) {
 			}
 			
 			if (callMockHdr) {
-				if (processingMode == 2 || processingMode == 11 || processingMode == 21 || processingMode > 99) sprintf(mockHdrCmd, "mockHeader -tstart %lf -nchans %d -nbits %d %s %s > /tmp/udp_reader_mockheader.log 2>&1", lofar_get_packet_time_mjd(reader->meta->inputData[0]), reader->meta->totalBeamlets, reader->meta->outputBitMode, mockHdrArg, workingString);
-				else sprintf(mockHdrCmd, "mockHeader -tstart %lf -nchans %d -nbits %d %s %s > /tmp/udp_reader_mockheader.log 2>&1", lofar_get_packet_time_mjd(reader->meta->inputData[0]), reader->meta->portBeamlets[out], reader->meta->outputBitMode, mockHdrArg, workingString);
+				if (processingMode == 2 || processingMode == 11 || processingMode == 21 || processingMode > 99) sprintf(mockHdrCmd, "mockHeader -tstart %lf -nchans %d -nbits %d -tsamp %ld %s %s > /tmp/udp_reader_mockheader.log 2>&1", lofar_get_packet_time_mjd(reader->meta->inputData[0]), reader->meta->totalBeamlets, reader->meta->outputBitMode, samplingTime, mockHdrArg, workingString);
+				else sprintf(mockHdrCmd, "mockHeader -tstart %lf -nchans %d -nbits %d -tsamp %ld %s %s > /tmp/udp_reader_mockheader.log 2>&1", lofar_get_packet_time_mjd(reader->meta->inputData[0]), reader->meta->portBeamlets[out], reader->meta->outputBitMode, samplingTime, mockHdrArg, workingString);
 				dummy = system(mockHdrCmd);
 
 				if (dummy != 0) fprintf(stderr, "Encountered error while calling mockHeader (%s), continuing with caution.\n", mockHdrCmd);
