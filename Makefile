@@ -11,18 +11,15 @@ CXXFLAGS += $(CFLAGS) -std=c++17
 
 LFLAGS 	+= -I./ -I /usr/include/ -lzstd -fopenmp #-lefence
 
-OBJECTS = lofar_cli_extractor.o lofar_udp_reader.so lofar_udp_misc.so lofar_udp_backends.sopp
+OBJECTS = lofar_cli_extractor.o lofar_udp_reader.o lofar_udp_misc.o lofar_udp_backends.o
 
 PREFIX = /usr/local
-
-%.so: %.c
-	$(CC) -c $(LFLAGS) -o ./$@ $< $(CFLAGS) -fPIC
 
 %.o: %.c
 	$(CC) -c $(LFLAGS) -o ./$@ $< $(CFLAGS)
 
-%.sopp: %.cpp
-	$(CXX) -c $(LFLAGS) -o ./$@ $< $(CXXFLAGS) -fPIC
+%.o: %.cpp
+	$(CXX) -c $(LFLAGS) -o ./$@ $< $(CXXFLAGS) 
 
 all: $(OBJECTS)
 	$(CXX) $(LFLAGS) $(OBJECTS) -o ./lofar_udp_extractor $(LFLAGS)
