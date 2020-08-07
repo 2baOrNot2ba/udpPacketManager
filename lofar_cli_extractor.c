@@ -469,7 +469,7 @@ int main(int argc, char  *argv[]) {
 			}
 		}
 
-
+		VERBOSE(if (verbose) printf("Begining data extractino loop for event %d\n", eventLoop));
 		// While we receive new data for the current event,
 		while ((returnVal = lofar_udp_reader_step_timed(reader, timing)) < 1) {
 
