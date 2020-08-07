@@ -83,13 +83,18 @@ void inline udp_copySplitPols(long iLoop, char *inputPortData, O **outputData, l
 	long tsInOffset, tsOutOffset;
 
 	//#pragma omp parallel for schedule(dynamic, 31) // Expected sizes: 61, 122, 244
-	//#pragma GCC unroll(61 * 16)
+	#ifndef __INTEL_COMPILER
+	#pragma GCC unroll(61)
+	#else
 	#pragma omp simd
+	#endif
 	for (int beamlet = 0; beamlet < portBeamlets; beamlet++) {
 		tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL * timeStepSize;
 		tsOutOffset = outputPacketOffset + (beamlet + cumulativeBeamlets) * UDPNTIMESLICE;
 
-		//#pragma omp simd
+		#ifndef __INTEL_COMPILER
+		#pragma omp simd
+		#endif
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 			outputData[0][tsOutOffset] = *((I*) &(inputPortData[tsInOffset])); // Xr
 			outputData[1][tsOutOffset] = *((I*) &(inputPortData[tsInOffset + 1 * timeStepSize])); // Xi
@@ -109,13 +114,18 @@ void inline udp_reorder(long iLoop, char *inputPortData, O **outputData, int por
 	long tsInOffset, tsOutOffset;
 
 	//#pragma omp parallel for schedule(dynamic, 31) // Expected sizes: 61, 122, 244
-	//#pragma GCC unroll(61 * 16)
+	#ifndef __INTEL_COMPILER
+	#pragma GCC unroll(61)
+	#else
 	#pragma omp simd
+	#endif
 	for (int beamlet = 0; beamlet < portBeamlets; beamlet++) {
 		tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL * timeStepSize;
 		tsOutOffset = outputPacketOffset + (beamlet + cumulativeBeamlets) * UDPNPOL;
 
-		//#pragma omp simd
+		#ifndef __INTEL_COMPILER
+		#pragma omp simd
+		#endif
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 			outputData[port][tsOutOffset] = *((I*) &(inputPortData[tsInOffset])); // Xr
 			outputData[port][tsOutOffset + 1] = *((I*) &(inputPortData[tsInOffset + 1 * timeStepSize])); // Xi
@@ -134,13 +144,18 @@ void inline udp_reorderSplitPols(long iLoop, char *inputPortData, O **outputData
 	long tsInOffset, tsOutOffset;
 
 	//#pragma omp parallel for schedule(dynamic, 31) // Expected sizes: 61, 122, 244
-	//#pragma GCC unroll(61 * 16)
+	#ifndef __INTEL_COMPILER
+	#pragma GCC unroll(61)
+	#else
 	#pragma omp simd
+	#endif
 	for (int beamlet = 0; beamlet < portBeamlets; beamlet++) {
 		tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL * timeStepSize;
 		tsOutOffset = outputPacketOffset + beamlet + cumulativeBeamlets;
 
-		//#pragma omp simd
+		#ifndef __INTEL_COMPILER
+		#pragma omp simd
+		#endif
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 			outputData[0][tsOutOffset] = *((I*) &(inputPortData[tsInOffset])); // Xr
 			outputData[1][tsOutOffset] = *((I*) &(inputPortData[tsInOffset + 1 * timeStepSize])); // Xi
@@ -159,13 +174,18 @@ void inline udp_reversed(long iLoop, char *inputPortData, O **outputData, int po
 	long tsInOffset, tsOutOffset;
 
 	//#pragma omp parallel for schedule(dynamic, 31) // Expected sizes: 61, 122, 244
-	//#pragma GCC unroll(61 * 16)
+	#ifndef __INTEL_COMPILER
+	#pragma GCC unroll(61)
+	#else
 	#pragma omp simd
+	#endif
 	for (int beamlet = 0; beamlet < portBeamlets; beamlet++) {
 		tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL * timeStepSize;
 		tsOutOffset = outputPacketOffset + (totalBeamlets - 1 - (beamlet + cumulativeBeamlets)) * UDPNPOL;
 
-		//#pragma omp simd
+		#ifndef __INTEL_COMPILER
+		#pragma omp simd
+		#endif
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 			outputData[port][tsOutOffset] = *((I*) &(inputPortData[tsInOffset])); // Xr
 			outputData[port][tsOutOffset + 1] = *((I*) &(inputPortData[tsInOffset + 1 * timeStepSize])); // Xi
@@ -184,13 +204,18 @@ void inline udp_reversedSplitPols(long iLoop, char *inputPortData, O **outputDat
 	long tsInOffset, tsOutOffset;
 
 	//#pragma omp parallel for schedule(dynamic, 31) // Expected sizes: 61, 122, 244
-	//#pragma GCC unroll(61 * 16)
+	#ifndef __INTEL_COMPILER
+	#pragma GCC unroll(61)
+	#else
 	#pragma omp simd
+	#endif
 	for (int beamlet = 0; beamlet < portBeamlets; beamlet++) {
 		tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL * timeStepSize;
 		tsOutOffset = outputPacketOffset + (totalBeamlets - 1 - beamlet - cumulativeBeamlets);
 		
-		//#pragma omp simd
+		#ifndef __INTEL_COMPILER
+		#pragma omp simd
+		#endif
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 			outputData[0][tsOutOffset] = *((I*) &(inputPortData[tsInOffset])); // Xr
 			outputData[1][tsOutOffset] = *((I*) &(inputPortData[tsInOffset + 1 * timeStepSize])); // Xi
@@ -210,13 +235,18 @@ void inline udp_stokes(long iLoop, char *inputPortData, O **outputData,  long la
 	long tsInOffset, tsOutOffset;
 
 	//#pragma omp parallel for schedule(dynamic, 31) // Expected sizes: 61, 122, 244
-	//#pragma GCC unroll(61 * 16)
+	#ifndef __INTEL_COMPILER
+	#pragma GCC unroll(61)
+	#else
 	#pragma omp simd
+	#endif
 	for (int beamlet = 0; beamlet < portBeamlets; beamlet++) {
 		tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL * timeStepSize;
 		tsOutOffset = outputPacketOffset + (totalBeamlets - 1 - beamlet - cumulativeBeamlets);
 
-		//#pragma omp simd 
+		#ifndef __INTEL_COMPILER
+		#pragma omp simd
+		#endif
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 			outputData[0][tsOutOffset] = (*stokesFunc)(*((I*) &(inputPortData[tsInOffset])), *((I*) &(inputPortData[tsInOffset + 1 * timeStepSize])), *((I*) &(inputPortData[tsInOffset + 2 * timeStepSize])), *((I*) &(inputPortData[tsInOffset + 3 * timeStepSize])));
 
@@ -233,14 +263,19 @@ void inline udp_stokesDecimation(long iLoop, char *inputPortData, O **outputData
 	O tempVal;
 
 	//#pragma omp parallel for schedule(dynamic, 31) // Expected sizes: 61, 122, 244
-	//#pragma GCC unroll(61 * 16)
+	#ifndef __INTEL_COMPILER
+	#pragma GCC unroll(61)
+	#else
 	#pragma omp simd
+	#endif
 	for (int beamlet = 0; beamlet < portBeamlets; beamlet++) {
 		tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL * timeStepSize;
 		tsOutOffset = outputPacketOffset + (totalBeamlets - 1 - beamlet - cumulativeBeamlets);
 		tempVal = 0.0;
 
-		//#pragma omp simd 
+		#ifndef __INTEL_COMPILER
+		#pragma omp simd
+		#endif
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 			tempVal += (*stokesFunc)(*((I*) &(inputPortData[tsInOffset])), *((I*) &(inputPortData[tsInOffset + 1 * timeStepSize])), *((I*) &(inputPortData[tsInOffset + 2 * timeStepSize])), *((I*) &(inputPortData[tsInOffset + 3 * timeStepSize])));
 
@@ -403,76 +438,106 @@ int lofar_udp_raw_loop(lofar_udp_meta *meta) {
 
 			switch(state) {
 				case 0:
+					#ifdef __INTEL_COMPILER
 					#pragma omp task firstprivate(iLoop, port, lastInputPacketOffset)
+					#endif
 					udp_copy<char, char>(iLoop, inputPortData, (char**) outputData, port, lastInputPacketOffset, packetOutputLength);
 					break;
 				case 1:
+					#ifdef __INTEL_COMPILER
 					#pragma omp task firstprivate(iLoop, port, lastInputPacketOffset)
+					#endif
 					udp_copyNoHdr<char, char>(iLoop, inputPortData, (char**) outputData, port, lastInputPacketOffset, packetOutputLength);
 					break;
 				case 2:
+					#ifdef __INTEL_COMPILER
 					#pragma omp task firstprivate(iLoop, lastInputPacketOffset)
+					#endif
 					udp_copySplitPols<I, O>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, portBeamlets, cumulativeBeamlets);
 					break;
 
 
 				case 10:
+					#ifdef __INTEL_COMPILER
 					#pragma omp task firstprivate(iLoop, port, lastInputPacketOffset)
+					#endif
 					udp_reorder<I, O>(iLoop, inputPortData, outputData, port, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 				case 11:
+					#ifdef __INTEL_COMPILER
 					#pragma omp task firstprivate(iLoop, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets)
+					#endif
 					udp_reorderSplitPols<I, O>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 
 
 				case 20:
+					#ifdef __INTEL_COMPILER
 					#pragma omp task firstprivate(iLoop, port, lastInputPacketOffset)
+					#endif
 					udp_reversed<I, O>(iLoop, inputPortData, outputData, port, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 				case 21:
+					#ifdef __INTEL_COMPILER
 					#pragma omp task firstprivate(iLoop, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets)
+					#endif
 					udp_reversedSplitPols<I, O>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 
 
 				case 100:
+					#ifdef __INTEL_COMPILER
 					#pragma omp task firstprivate(iLoop, lastInputPacketOffset)
+					#endif
 					udp_stokes<I, O, stokesI>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 				case 110:
+					#ifdef __INTEL_COMPILER
 					#pragma omp task firstprivate(iLoop, lastInputPacketOffset)
+					#endif
 					udp_stokes<I, O, stokesQ>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 				case 120:
+					#ifdef __INTEL_COMPILER
 					#pragma omp task firstprivate(iLoop, lastInputPacketOffset)
+					#endif
 					udp_stokes<I, O, stokesU>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 				case 130:
+					#ifdef __INTEL_COMPILER
 					#pragma omp task firstprivate(iLoop, lastInputPacketOffset)
+					#endif
 					udp_stokes<I, O, stokesV>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 
 
 				case 101 ... 104:
+					#ifdef __INTEL_COMPILER
 					#pragma omp task firstprivate(iLoop, lastInputPacketOffset)
+					#endif
 					udp_stokesDecimation<I, O, stokesI, decimation>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 
 				case 111 ... 114:
+					#ifdef __INTEL_COMPILER
 					#pragma omp task firstprivate(iLoop, lastInputPacketOffset)
+					#endif
 					udp_stokesDecimation<I, O, stokesQ, decimation>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 
 
 				case 121 ... 124:
+					#ifdef __INTEL_COMPILER
 					#pragma omp task firstprivate(iLoop, lastInputPacketOffset)
+					#endif
 					udp_stokesDecimation<I, O, stokesU, decimation>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 
 
 				case 131 ... 134:
+					#ifdef __INTEL_COMPILER
 					#pragma omp task firstprivate(iLoop, lastInputPacketOffset)
+					#endif
 					udp_stokesDecimation<I, O, stokesV, decimation>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 
