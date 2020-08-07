@@ -83,7 +83,7 @@ void inline udp_copySplitPols(long iLoop, char *inputPortData, O **outputData, l
 	long tsInOffset, tsOutOffset;
 
 	//#pragma omp parallel for schedule(dynamic, 31) // Expected sizes: 61, 122, 244
-	#pragma GCC unroll(61 * 16)
+	//#pragma GCC unroll(61 * 16)
 	#pragma omp simd
 	for (int beamlet = 0; beamlet < portBeamlets; beamlet++) {
 		tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL * timeStepSize;
@@ -109,7 +109,7 @@ void inline udp_reorder(long iLoop, char *inputPortData, O **outputData, int por
 	long tsInOffset, tsOutOffset;
 
 	//#pragma omp parallel for schedule(dynamic, 31) // Expected sizes: 61, 122, 244
-	#pragma GCC unroll(61 * 16)
+	//#pragma GCC unroll(61 * 16)
 	#pragma omp simd
 	for (int beamlet = 0; beamlet < portBeamlets; beamlet++) {
 		tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL * timeStepSize;
@@ -134,7 +134,7 @@ void inline udp_reorderSplitPols(long iLoop, char *inputPortData, O **outputData
 	long tsInOffset, tsOutOffset;
 
 	//#pragma omp parallel for schedule(dynamic, 31) // Expected sizes: 61, 122, 244
-	#pragma GCC unroll(61 * 16)
+	//#pragma GCC unroll(61 * 16)
 	#pragma omp simd
 	for (int beamlet = 0; beamlet < portBeamlets; beamlet++) {
 		tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL * timeStepSize;
@@ -159,7 +159,7 @@ void inline udp_reversed(long iLoop, char *inputPortData, O **outputData, int po
 	long tsInOffset, tsOutOffset;
 
 	//#pragma omp parallel for schedule(dynamic, 31) // Expected sizes: 61, 122, 244
-	#pragma GCC unroll(61 * 16)
+	//#pragma GCC unroll(61 * 16)
 	#pragma omp simd
 	for (int beamlet = 0; beamlet < portBeamlets; beamlet++) {
 		tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL * timeStepSize;
@@ -184,7 +184,7 @@ void inline udp_reversedSplitPols(long iLoop, char *inputPortData, O **outputDat
 	long tsInOffset, tsOutOffset;
 
 	//#pragma omp parallel for schedule(dynamic, 31) // Expected sizes: 61, 122, 244
-	#pragma GCC unroll(61 * 16)
+	//#pragma GCC unroll(61 * 16)
 	#pragma omp simd
 	for (int beamlet = 0; beamlet < portBeamlets; beamlet++) {
 		tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL * timeStepSize;
@@ -210,7 +210,7 @@ void inline udp_stokes(long iLoop, char *inputPortData, O **outputData,  long la
 	long tsInOffset, tsOutOffset;
 
 	//#pragma omp parallel for schedule(dynamic, 31) // Expected sizes: 61, 122, 244
-	#pragma GCC unroll(61 * 16)
+	//#pragma GCC unroll(61 * 16)
 	#pragma omp simd
 	for (int beamlet = 0; beamlet < portBeamlets; beamlet++) {
 		tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL * timeStepSize;
@@ -233,7 +233,7 @@ void inline udp_stokesDecimation(long iLoop, char *inputPortData, O **outputData
 	O tempVal;
 
 	//#pragma omp parallel for schedule(dynamic, 31) // Expected sizes: 61, 122, 244
-	#pragma GCC unroll(61 * 16)
+	//#pragma GCC unroll(61 * 16)
 	#pragma omp simd
 	for (int beamlet = 0; beamlet < portBeamlets; beamlet++) {
 		tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL * timeStepSize;
