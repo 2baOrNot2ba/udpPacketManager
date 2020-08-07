@@ -88,7 +88,7 @@ void inline udp_copySplitPols(long iLoop, char *inputPortData, O **outputData, l
 		tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL * timeStepSize;
 		tsOutOffset = outputPacketOffset + (beamlet + cumulativeBeamlets) * UDPNTIMESLICE;
 
-		#pragma GCC unroll(16) //UDPNTIMESLICE not defined at compile?
+		#pragma omp simd
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 			outputData[0][tsOutOffset] = *((I*) &(inputPortData[tsInOffset])); // Xr
 			outputData[1][tsOutOffset] = *((I*) &(inputPortData[tsInOffset + 1 * timeStepSize])); // Xi
@@ -113,7 +113,7 @@ void inline udp_reorder(long iLoop, char *inputPortData, O **outputData, int por
 		tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL * timeStepSize;
 		tsOutOffset = outputPacketOffset + (beamlet + cumulativeBeamlets) * UDPNPOL;
 
-		#pragma GCC unroll(16) //UDPNTIMESLICE not defined at compile?
+		#pragma omp simd
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 			outputData[port][tsOutOffset] = *((I*) &(inputPortData[tsInOffset])); // Xr
 			outputData[port][tsOutOffset + 1] = *((I*) &(inputPortData[tsInOffset + 1 * timeStepSize])); // Xi
@@ -137,7 +137,7 @@ void inline udp_reorderSplitPols(long iLoop, char *inputPortData, O **outputData
 		tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL * timeStepSize;
 		tsOutOffset = outputPacketOffset + beamlet + cumulativeBeamlets;
 
-		#pragma GCC unroll(16) //UDPNTIMESLICE not defined at compile?
+		#pragma omp simd
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 			outputData[0][tsOutOffset] = *((I*) &(inputPortData[tsInOffset])); // Xr
 			outputData[1][tsOutOffset] = *((I*) &(inputPortData[tsInOffset + 1 * timeStepSize])); // Xi
@@ -161,7 +161,7 @@ void inline udp_reversed(long iLoop, char *inputPortData, O **outputData, int po
 		tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL * timeStepSize;
 		tsOutOffset = outputPacketOffset + (totalBeamlets - 1 - (beamlet + cumulativeBeamlets)) * UDPNPOL;
 
-		#pragma GCC unroll(16) //UDPNTIMESLICE not defined at compile?
+		#pragma omp simd
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 			outputData[port][tsOutOffset] = *((I*) &(inputPortData[tsInOffset])); // Xr
 			outputData[port][tsOutOffset + 1] = *((I*) &(inputPortData[tsInOffset + 1 * timeStepSize])); // Xi
@@ -184,7 +184,7 @@ void inline udp_reversedSplitPols(long iLoop, char *inputPortData, O **outputDat
 	for (int beamlet = 0; beamlet < portBeamlets; beamlet++) {
 		tsInOffset = lastInputPacketOffset + beamlet * UDPNTIMESLICE * UDPNPOL * timeStepSize;
 		tsOutOffset = outputPacketOffset + (totalBeamlets - 1 - beamlet - cumulativeBeamlets);
-		#pragma GCC unroll(16) //UDPNTIMESLICE not defined at compile?
+		#pragma omp simd
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 			outputData[0][tsOutOffset] = *((I*) &(inputPortData[tsInOffset])); // Xr
 			outputData[1][tsOutOffset] = *((I*) &(inputPortData[tsInOffset + 1 * timeStepSize])); // Xi
@@ -210,7 +210,7 @@ void inline udp_stokes(long iLoop, char *inputPortData, O **outputData,  long la
 		tsOutOffset = outputPacketOffset + (totalBeamlets - 1 - beamlet - cumulativeBeamlets);
 
 		//#pragma omp simd 
-		#pragma GCC unroll(16) //UDPNTIMESLICE not defined at compile?
+		#pragma omp simd
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 			outputData[0][tsOutOffset] = (*stokesFunc)(*((I*) &(inputPortData[tsInOffset])), *((I*) &(inputPortData[tsInOffset + 1 * timeStepSize])), *((I*) &(inputPortData[tsInOffset + 2 * timeStepSize])), *((I*) &(inputPortData[tsInOffset + 3 * timeStepSize])));
 
@@ -234,7 +234,7 @@ void inline udp_stokesDecimation(long iLoop, char *inputPortData, O **outputData
 		tempVal = 0.0;
 
 		//#pragma omp simd 
-		#pragma GCC unroll(16) //UDPNTIMESLICE not defined at compile?
+		#pragma omp simd
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 			tempVal += (*stokesFunc)(*((I*) &(inputPortData[tsInOffset])), *((I*) &(inputPortData[tsInOffset + 1 * timeStepSize])), *((I*) &(inputPortData[tsInOffset + 2 * timeStepSize])), *((I*) &(inputPortData[tsInOffset + 3 * timeStepSize])));
 
@@ -448,36 +448,24 @@ int lofar_udp_raw_loop(lofar_udp_meta *meta) {
 					break;
 
 
-				case 101:
-				case 102:
-				case 103:
-				case 104:
+				case 101 ... 104:
 					#pragma omp task firstprivate(iLoop, lastInputPacketOffset)
 					udp_stokesDecimation<I, O, stokesI, decimation>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 
-				case 111:
-				case 112:
-				case 113:
-				case 114:
+				case 111 ... 114:
 					#pragma omp task firstprivate(iLoop, lastInputPacketOffset)
 					udp_stokesDecimation<I, O, stokesQ, decimation>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 
 
-				case 121:
-				case 122:
-				case 123:
-				case 124:
+				case 121 ... 124:
 					#pragma omp task firstprivate(iLoop, lastInputPacketOffset)
 					udp_stokesDecimation<I, O, stokesU, decimation>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 
 
-				case 131:
-				case 132:
-				case 133:
-				case 134:
+				case 131 ... 134:
 					#pragma omp task firstprivate(iLoop, lastInputPacketOffset)
 					udp_stokesDecimation<I, O, stokesV, decimation>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
