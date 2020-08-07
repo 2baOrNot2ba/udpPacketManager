@@ -1,6 +1,6 @@
 CC 	= gcc-9
 CXX 	= g++-9
-CFLAGS 	= $(CFLAGS) -march=native -W -Wall -O3 -march=native -DVERSION=0.2 -DVERSIONCLI=0.1 -funswitch-loops #-g -DALLOW_VERBOSE #-D__SLOWDOWN
+CFLAGS 	= $(CFLAGS) -fPIC -march=native -W -Wall -O3 -march=native -DVERSION=0.2 -DVERSIONCLI=0.1 -funswitch-loops #-g -DALLOW_VERBOSE #-D__SLOWDOWN
 
 ifeq ($(CC),'icc')
 CFLAGS = $(CFLAGS) -static-intel -qopenmp-link=static
