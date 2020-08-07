@@ -479,10 +479,10 @@ int lofar_udp_setup_processing(lofar_udp_meta *meta) {
 	float mulFactor = 1.0; // Scale packet length linearly
 	int workingData = 0;
 
-	// Mass switch statement for each of the different processing modes
-	// TODO: will need heavy update after funswitch_loops change
-	// TODO: try isolate 8x/16x decimation issue
-	// TODO: Account for bit level inputs (4x / 16x)
+	// TODO: 4-bit mode not yet implemented
+
+
+	// Define the processing function
 	switch (meta->processingMode) {
 		case 0:
 			meta->processFunc = &lofar_udp_raw_udp_copy;
@@ -582,6 +582,7 @@ int lofar_udp_setup_processing(lofar_udp_meta *meta) {
 			return 1;
 	}
 
+	// Define the output size per packet
 	switch (meta->processingMode) {
 		#pragma GCC diagnostic push
 		#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"

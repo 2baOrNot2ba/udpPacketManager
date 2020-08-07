@@ -447,6 +447,7 @@ int main(int argc, char  *argv[]) {
 		// Open the output files for this event
 		for (int out = 0; out < outputFilesCount; out++) {
 			sprintf(workingString, outputFormat, out, dateStr[eventLoop], startingPacket);
+			VERBOSE(if (verbose) printf("Testing output file for output %d @ %s\n", out, workingString));
 			
 			if (appendMode != 1 && access(workingString, F_OK) != -1) {
 				fprintf(stderr, "Output file at %s already exists; exiting.\n", workingString);
@@ -454,12 +455,13 @@ int main(int argc, char  *argv[]) {
 			}
 			
 			if (callMockHdr) {
-				if (processingMode == 2 || processingMode == 11 || processingMode == 21 || processingMode > 99) sprintf(mockHdrCmd, "mockHeader -tstart %lf -nchans %d %s %s", lofar_get_packet_time_mjd(reader->meta->inputData[0]), reader->meta->totalBeamlets, mockHdrArg, workingString);
-				else sprintf(mockHdrCmd, "mockHeader -tstart %lf -nchans %d %s %s > /tmp/udp_reader_mockheader.log 2>&1", lofar_get_packet_time_mjd(reader->meta->inputData[0]), reader->meta->portBeamlets[out], mockHdrArg, workingString);
+				if (processingMode == 2 || processingMode == 11 || processingMode == 21 || processingMode > 99) sprintf(mockHdrCmd, "mockHeader -tstart %lf -nchans %d -nbits %d %s %s > /tmp/udp_reader_mockheader.log 2>&1", lofar_get_packet_time_mjd(reader->meta->inputData[0]), reader->meta->totalBeamlets, reader->meta->outputBitMode, mockHdrArg, workingString);
+				else sprintf(mockHdrCmd, "mockHeader -tstart %lf -nchans %d -nbits %d %s %s > /tmp/udp_reader_mockheader.log 2>&1", lofar_get_packet_time_mjd(reader->meta->inputData[0]), reader->meta->portBeamlets[out], reader->meta->outputBitMode, mockHdrArg, workingString);
 				dummy = system(mockHdrCmd);
 
 				if (dummy != 0) fprintf(stderr, "Encountered error while calling mockHeader (%s), continuing with caution.\n", mockHdrCmd);
 			}
+
 			VERBOSE(if (verbose) printf("Opening file at %s\n", workingString));
 
 			outputFiles[out] = fopen(workingString, "a");
@@ -469,7 +471,7 @@ int main(int argc, char  *argv[]) {
 			}
 		}
 
-		VERBOSE(if (verbose) printf("Begining data extractino loop for event %d\n", eventLoop));
+		VERBOSE(if (verbose) printf("Begining data extraction loop for event %d\n", eventLoop));
 		// While we receive new data for the current event,
 		while ((returnVal = lofar_udp_reader_step_timed(reader, timing)) < 1) {
 

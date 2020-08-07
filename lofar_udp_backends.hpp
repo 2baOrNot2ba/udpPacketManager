@@ -397,43 +397,53 @@ int lofar_udp_raw_loop(lofar_udp_meta *meta) {
 
 			switch(state) {
 				case 0:
+					#pragma omp task firstprivate(iLoop, port, lastInputPacketOffset)
 					udp_copy<char, char>(iLoop, inputPortData, (char**) outputData, port, lastInputPacketOffset, packetOutputLength);
 					break;
-
 				case 1:
+					#pragma omp task firstprivate(iLoop, port, lastInputPacketOffset)
 					udp_copyNoHdr<char, char>(iLoop, inputPortData, (char**) outputData, port, lastInputPacketOffset, packetOutputLength);
 					break;
 				case 2:
+					#pragma omp task firstprivate(iLoop, lastInputPacketOffset)
 					udp_copySplitPols<I, O>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, portBeamlets, cumulativeBeamlets);
 					break;
 
 
 				case 10:
+					#pragma omp task firstprivate(iLoop, port, lastInputPacketOffset)
 					udp_reorder<I, O>(iLoop, inputPortData, outputData, port, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 				case 11:
+					#pragma omp task firstprivate(iLoop, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets)
 					udp_reorderSplitPols<I, O>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 
 
 				case 20:
+					#pragma omp task firstprivate(iLoop, port, lastInputPacketOffset)
 					udp_reversed<I, O>(iLoop, inputPortData, outputData, port, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 				case 21:
+					#pragma omp task firstprivate(iLoop, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets)
 					udp_reversedSplitPols<I, O>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 
 
 				case 100:
+					#pragma omp task firstprivate(iLoop, lastInputPacketOffset)
 					udp_stokes<I, O, stokesI>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 				case 110:
+					#pragma omp task firstprivate(iLoop, lastInputPacketOffset)
 					udp_stokes<I, O, stokesQ>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 				case 120:
+					#pragma omp task firstprivate(iLoop, lastInputPacketOffset)
 					udp_stokes<I, O, stokesU>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 				case 130:
+					#pragma omp task firstprivate(iLoop, lastInputPacketOffset)
 					udp_stokes<I, O, stokesV>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 
@@ -442,6 +452,7 @@ int lofar_udp_raw_loop(lofar_udp_meta *meta) {
 				case 102:
 				case 103:
 				case 104:
+					#pragma omp task firstprivate(iLoop, lastInputPacketOffset)
 					udp_stokesDecimation<I, O, stokesI, decimation>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 
@@ -449,6 +460,7 @@ int lofar_udp_raw_loop(lofar_udp_meta *meta) {
 				case 112:
 				case 113:
 				case 114:
+					#pragma omp task firstprivate(iLoop, lastInputPacketOffset)
 					udp_stokesDecimation<I, O, stokesQ, decimation>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 
@@ -457,6 +469,7 @@ int lofar_udp_raw_loop(lofar_udp_meta *meta) {
 				case 122:
 				case 123:
 				case 124:
+					#pragma omp task firstprivate(iLoop, lastInputPacketOffset)
 					udp_stokesDecimation<I, O, stokesU, decimation>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 
@@ -465,6 +478,7 @@ int lofar_udp_raw_loop(lofar_udp_meta *meta) {
 				case 132:
 				case 133:
 				case 134:
+					#pragma omp task firstprivate(iLoop, lastInputPacketOffset)
 					udp_stokesDecimation<I, O, stokesV, decimation>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);
 					break;
 
@@ -476,7 +490,7 @@ int lofar_udp_raw_loop(lofar_udp_meta *meta) {
 					exit(1);
 			}
 
-
+			#pragma omp taskwait
 		}
 		// Update the overall dropped packet count for this port
 
