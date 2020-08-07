@@ -1,15 +1,15 @@
 CC 	= gcc-9
 CXX 	= g++-9
-CFLAGS 	= $(CFLAGS) -fPIC -march=native -W -Wall -O3 -march=native -DVERSION=0.2 -DVERSIONCLI=0.1 -funswitch-loops #-g -DALLOW_VERBOSE #-D__SLOWDOWN
+CFLAGS 	= -fPIC -march=native -W -Wall -O3 -march=native -DVERSION=0.2 -DVERSIONCLI=0.1 -funswitch-loops #-g -DALLOW_VERBOSE #-D__SLOWDOWN
 
 ifeq ($(CC),'icc')
 CFLAGS = $(CFLAGS) -static-intel -qopenmp-link=static
 endif
 
-CXXFLAGS= $(CXXFLAGS) $(CFLAGS) -std=c++17
+CXXFLAGS= $(CFLAGS) -std=c++17
 # -fopt-info-missed=compiler_report_missed.log -fopt-info-vec=compiler_report_vec.log -fopt-info-loop=compiler_report_loop.log -fopt-info-inline=compiler_report_inline.log -fopt-info-omp=compiler_report_omp.log
 
-LFLAGS 	= $(LFLAGS) -I./ -I /usr/include/ -lzstd -fopenmp #-lefence
+LFLAGS 	= -I./ -I /usr/include/ -lzstd -fopenmp #-lefence
 
 OBJECTS = lofar_cli_extractor.o lofar_udp_reader.o lofar_udp_misc.o lofar_udp_backends.opp
 
