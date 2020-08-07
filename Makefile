@@ -1,5 +1,14 @@
-CC 	= gcc-9
-CXX 	= g++-9
+ifneq (,$(shell which icc))
+CC		= icc
+CXX		= icpc
+else ifneq (,$(shell which gcc-9))
+CC		= gcc-9
+CXX		= g++-9
+else
+CC		= gcc
+CXX		= g++
+endif
+
 CFLAGS 	+= -march=native -W -Wall -O3 -march=native -DVERSION=0.2 -DVERSIONCLI=0.1 -funswitch-loops -fPIC #-g -DALLOW_VERBOSE #-D__SLOWDOWN
 
 ifeq ($(CC), icc)
