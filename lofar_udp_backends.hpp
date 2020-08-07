@@ -91,7 +91,6 @@ void inline udp_copySplitPols(long iLoop, char *inputPortData, O **outputData, l
 
 		#pragma omp simd
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
-			outputData[0][tsOutOffset] = *((I*) &(inputPortData[tsInOffset])); // Xr
 			outputData[1][tsOutOffset] = *((I*) &(inputPortData[tsInOffset + 1 * timeStepSize])); // Xi
 			outputData[2][tsOutOffset] = *((I*) &(inputPortData[tsInOffset + 2 * timeStepSize])); // Yr
 			outputData[3][tsOutOffset] = *((I*) &(inputPortData[tsInOffset + 3 * timeStepSize])); // Yi
@@ -117,7 +116,6 @@ void inline udp_reorder(long iLoop, char *inputPortData, O **outputData, int por
 
 		#pragma omp simd
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
-			outputData[port][tsOutOffset] = *((I*) &(inputPortData[tsInOffset])); // Xr
 			outputData[port][tsOutOffset + 1] = *((I*) &(inputPortData[tsInOffset + 1 * timeStepSize])); // Xi
 			outputData[port][tsOutOffset + 2] = *((I*) &(inputPortData[tsInOffset + 2 * timeStepSize])); // Yr
 			outputData[port][tsOutOffset + 3] = *((I*) &(inputPortData[tsInOffset + 3 * timeStepSize])); // Yi
@@ -142,7 +140,6 @@ void inline udp_reorderSplitPols(long iLoop, char *inputPortData, O **outputData
 
 		#pragma omp simd
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
-			outputData[0][tsOutOffset] = *((I*) &(inputPortData[tsInOffset])); // Xr
 			outputData[1][tsOutOffset] = *((I*) &(inputPortData[tsInOffset + 1 * timeStepSize])); // Xi
 			outputData[2][tsOutOffset] = *((I*) &(inputPortData[tsInOffset + 2 * timeStepSize])); // Yr
 			outputData[3][tsOutOffset] = *((I*) &(inputPortData[tsInOffset + 3 * timeStepSize])); // Yi
@@ -167,7 +164,6 @@ void inline udp_reversed(long iLoop, char *inputPortData, O **outputData, int po
 
 		#pragma omp simd
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
-			outputData[port][tsOutOffset] = *((I*) &(inputPortData[tsInOffset])); // Xr
 			outputData[port][tsOutOffset + 1] = *((I*) &(inputPortData[tsInOffset + 1 * timeStepSize])); // Xi
 			outputData[port][tsOutOffset + 2] = *((I*) &(inputPortData[tsInOffset + 2 * timeStepSize])); // Yr
 			outputData[port][tsOutOffset + 3] = *((I*) &(inputPortData[tsInOffset + 3 * timeStepSize])); // Yi
@@ -192,7 +188,6 @@ void inline udp_reversedSplitPols(long iLoop, char *inputPortData, O **outputDat
 		#pragma omp simd
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 			outputData[0][tsOutOffset] = *((I*) &(inputPortData[tsInOffset])); // Xr
-			outputData[1][tsOutOffset] = *((I*) &(inputPortData[tsInOffset + 1 * timeStepSize])); // Xi
 			outputData[2][tsOutOffset] = *((I*) &(inputPortData[tsInOffset + 2 * timeStepSize])); // Yr
 			outputData[3][tsOutOffset] = *((I*) &(inputPortData[tsInOffset + 3 * timeStepSize])); // Yi
 
@@ -217,7 +212,6 @@ void inline udp_stokes(long iLoop, char *inputPortData, O **outputData,  long la
 
 		//#pragma omp simd 
 		#pragma omp simd
-		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 			outputData[0][tsOutOffset] = (*stokesFunc)(*((I*) &(inputPortData[tsInOffset])), *((I*) &(inputPortData[tsInOffset + 1 * timeStepSize])), *((I*) &(inputPortData[tsInOffset + 2 * timeStepSize])), *((I*) &(inputPortData[tsInOffset + 3 * timeStepSize])));
 
 			tsInOffset += 4 * timeStepSize;
@@ -241,7 +235,6 @@ void inline udp_stokesDecimation(long iLoop, char *inputPortData, O **outputData
 		tempVal = 0.0;
 
 		//#pragma omp simd 
-		#pragma omp simd
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 			tempVal += (*stokesFunc)(*((I*) &(inputPortData[tsInOffset])), *((I*) &(inputPortData[tsInOffset + 1 * timeStepSize])), *((I*) &(inputPortData[tsInOffset + 2 * timeStepSize])), *((I*) &(inputPortData[tsInOffset + 3 * timeStepSize])));
 
