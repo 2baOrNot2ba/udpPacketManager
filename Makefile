@@ -1,6 +1,6 @@
 CC 	= gcc-9
 CXX 	= g++-9
-CFLAGS 	= -fPIC -march=native -W -Wall -O3 -march=native -DVERSION=0.2 -DVERSIONCLI=0.1 -funswitch-loops #-g -DALLOW_VERBOSE #-D__SLOWDOWN
+CFLAGS 	= -march=native -W -Wall -O3 -march=native -DVERSION=0.2 -DVERSIONCLI=0.1 -funswitch-loops #-g -DALLOW_VERBOSE #-D__SLOWDOWN
 
 ifeq ($(CC),'icc')
 CFLAGS = $(CFLAGS) -static-intel -qopenmp-link=static
@@ -11,15 +11,18 @@ CXXFLAGS= $(CFLAGS) -std=c++17
 
 LFLAGS 	= -I./ -I /usr/include/ -lzstd -fopenmp #-lefence
 
-OBJECTS = lofar_cli_extractor.o lofar_udp_reader.o lofar_udp_misc.o lofar_udp_backends.opp
+OBJECTS = lofar_cli_extractor.o lofar_udp_reader.so lofar_udp_misc.so lofar_udp_backends.sopp
 
 PREFIX = /usr/local
+
+%.so: %.c
+	$(CC) -c $(LFLAGS) -o ./$@ $< $(CFLAGS) -fPIC
 
 %.o: %.c
 	$(CC) -c $(LFLAGS) -o ./$@ $< $(CFLAGS)
 
-%.opp: %.cpp
-	$(CXX) -c $(LFLAGS) -o ./$@ $< $(CXXFLAGS)
+%.sopp: %.cpp
+	$(CXX) -c $(LFLAGS) -o ./$@ $< $(CXXFLAGS) -fPIC
 
 all: $(OBJECTS)
 	$(CXX) $(LFLAGS) $(OBJECTS) -o ./lofar_udp_extractor $(LFLAGS)
