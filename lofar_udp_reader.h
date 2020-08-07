@@ -130,7 +130,7 @@ typedef struct lofar_udp_meta {
 	int portCumulativeBeamlets[MAX_NUM_PORTS];
 	int totalBeamlets;
 
-	int inputBitMode[MAX_NUM_PORTS];
+	int inputBitMode;
 	int portPacketLength[MAX_NUM_PORTS];
 
 

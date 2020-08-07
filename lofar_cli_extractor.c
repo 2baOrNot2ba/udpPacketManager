@@ -61,11 +61,12 @@ void helpMessages() {
 	printf("21: Raw UDP to Beamlet Major, Frequency Reversed, Split Pols Output: combine (2) and (20).\n\n");
 
 	printf("100: Raw UDP to Stokes I: Form a 32-bit float Stokes I for the input.\n");
-	printf("101: Raw UDP to Stokes V: Form a 32-bit float Stokes V for the input.\n");
-	//printf("110: Raw UDP to Stokes I: Form stokes I for the input with 8x time decimation.\n");
-	//printf("111: Raw UDP to Stokes V: Form stokes V for the input with 8x time decimation.\n");
-	//printf("120: Raw UDP to Stokes I: Form stokes I for the input with 16x time decimation.\n");
-	//printf("121: Raw UDP to Stokes V: Form stokes V for the input with 16x time decimation.\n\n");
+	printf("110: Raw UDP to Stokes Q: Form a 32-bit float Stokes Q for the input.\n");
+	printf("120: Raw UDP to Stokes U: Form a 32-bit float Stokes U for the input.\n");
+	printf("130: Raw UDP to Stokes V: Form a 32-bit float Stokes V for the input.\n\n");
+
+	printf("Stokes outputs can be decimated in orders of 2, up to 16x by adjusting the last digit of their processing mode.\n");
+	printf("This is handled in orders of two, so 101 will give a Stokes I with 2x decimation, 102, will give 4x, 103 will give 8x and 104 will give 16x.\n");
 
 }
 
@@ -399,7 +400,7 @@ int main(int argc, char  *argv[]) {
 		printf("Start time:\t%s\t\tMJD Time:\t%lf\n", stringBuff, lofar_get_packet_time_mjd(reader->meta->inputData[0]));
 		for (int port = 0; port < reader->meta->numPorts; port++) {
 			printf("------------------ Port %d -----------------\n", port);
-			printf("Port Beamlets:\t%d\t\tPort Bitmode:\t%d\t\tInput Pkt Len:\t%d\n", reader->meta->portBeamlets[port], reader->meta->inputBitMode[port], reader->meta->portPacketLength[port]);
+			printf("Port Beamlets:\t%d\t\tPort Bitmode:\t%d\t\tInput Pkt Len:\t%d\n", reader->meta->portBeamlets[port], reader->meta->inputBitMode, reader->meta->portPacketLength[port]);
 		}
 		for (int out = 0; out < reader->meta->numOutputs; out++) printf("Output Pkt Len (%d):\t%d\t\t", out, reader->meta->packetOutputLength[out]);
 		printf("\n"); 
