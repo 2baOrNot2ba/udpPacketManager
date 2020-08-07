@@ -11,7 +11,7 @@ CXXFLAGS += $(CFLAGS) -std=c++17
 
 LFLAGS 	+= -I./ -I /usr/include/ -lzstd -fopenmp #-lefence
 
-OBJECT = lofar_udp_reader.o lofar_udp_misc.o lofar_udp_backends.o
+OBJECTS = lofar_udp_reader.o lofar_udp_misc.o lofar_udp_backends.o
 CLI_OBJECTS = $(OBJECTS) lofar_cli_extractor.o
 
 PREFIX = /usr/local
