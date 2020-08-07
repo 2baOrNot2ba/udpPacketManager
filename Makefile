@@ -2,7 +2,7 @@ CC 	= gcc-9
 CXX 	= g++-9
 CFLAGS 	+= -march=native -W -Wall -O3 -march=native -DVERSION=0.2 -DVERSIONCLI=0.1 -funswitch-loops -fPIC #-g -DALLOW_VERBOSE #-D__SLOWDOWN
 
-ifeq ($(CC),'icc')
+ifeq ($(CC), icc)
 CFLAGS += -static-intel -qopenmp-link=static
 endif
 
@@ -11,7 +11,8 @@ CXXFLAGS += $(CFLAGS) -std=c++17
 
 LFLAGS 	+= -I./ -I /usr/include/ -lzstd -fopenmp #-lefence
 
-OBJECTS = lofar_cli_extractor.o lofar_udp_reader.o lofar_udp_misc.o lofar_udp_backends.o
+OBJECT = lofar_udp_reader.o lofar_udp_misc.o lofar_udp_backends.o
+CLI_OBJECTS = $(OBJECTS) lofar_cli_extractor.o
 
 PREFIX = /usr/local
 
@@ -21,8 +22,11 @@ PREFIX = /usr/local
 %.o: %.cpp
 	$(CXX) -c $(LFLAGS) -o ./$@ $< $(CXXFLAGS) 
 
-all: $(OBJECTS)
+all: $(CLI_OBJECTS) library
 	$(CXX) $(LFLAGS) $(OBJECTS) -o ./lofar_udp_extractor $(LFLAGS)
+
+library: $(OBJECTS)
+	ar rc lofar_udp_manager.a $(OBJECTS)
 
 # TODO: install libraries as well...
 install:
@@ -39,7 +43,7 @@ install-local:
 
 clean:
 	rm ./*.o; exit 0;
-	rm ./*.opp; exit 0;
+	rm ./*.a; exit 0;
 	rm ./*.d; exit 0;
 	rm ./compiler_report_*.log; exit 0;
 	rm ./lofar_udp_extractor; exit 0;
