@@ -13,21 +13,19 @@ Caveats & TODOs
 While using the library, do be aware
 - CEP packets that are recorded out of order may cause issues, the best way to handle them as not been determined so they are currently skipped
 - The provided python dummy data script tends to generate errors in the output after around 5,000 packets are generated
-- It can currently only handle 8-bit input data
+- 4-bit data is not yet supported
 
 Future work should not break the exiting load/process iteration loop, and may consist of
 - Re-learning the intended way of installing C libraries (headers are copied to /usr/local/include, but the compiled objects need to be sorted)
-- Implementing 4-bit and 16-bit support
+- Implementing 4-bit
 - Creating a wrapper python library to allow for easer interfacing within python scripts rather than requiring a C program (CFFI if I can strip out ifdefs?)
-- While the current processing method is performant, it should be possible to reduce code dupication signfiicantly by an inner loop switch/check alongside the -funswitch-loops compiler flag
 - Add some 'defaults' into the mockHeader input, such as a "-mode5" string converted to implement the default sampling time and frequencies used
-- Converting the inner elements of the processing loops to OpenMP tasks shows promising results in some testing (Stokes I -> 20+% speedup)
 
 Requirements
 ------------
 
 ### Building / Using the Library
-- Modern verison of GCC with OpenMP support (gcc-9 used for development)
+- Modern C and C++ compilers with OpenMP and C++17 support (gcc/g++-9 used for development, icc/icpc compatible)
 - Zstandard libary/development headers (ver > 1.3, libzstd-dev on Ubuntu 18.04+, libzstd1-dev on Ubuntu 16.04, may require the restricted toolchain PPA)
 
 ### Building / Using the Example CLI
