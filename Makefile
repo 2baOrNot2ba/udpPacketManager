@@ -9,10 +9,13 @@ CC		= gcc
 CXX		= g++
 endif
 
+LIB_VER = 0.2
+CLI_VER = 0.1
+
 # Detemrine the max threads per socket to speed up execution via OpenMP with ICC (GCC falls over if we set too many)
 THREADS = $(shell cat /proc/cpuinfo | uniq | grep -m 2 "siblings" | cut -d ":" -f 2 | sort --numeric --unique | awk '{printf("%d", $$1);}')
 
-CFLAGS 	+= -march=native -W -Wall -O3 -march=native -DVERSION=0.2 -DVERSIONCLI=0.1 -fPIC #-g -DALLOW_VERBOSE #-D__SLOWDOWN
+CFLAGS 	+= -march=native -W -Wall -O3 -march=native -DVERSION=$(LIB_VER) -DVERSIONCLI=$(CLI_VER) -fPIC #-g -DALLOW_VERBOSE #-D__SLOWDOWN
 
 ifeq ($(CC), icc)
 CFLAGS += -fast -static -static-intel -qopenmp-link=static -DOMP_THREADS=$(THREADS)
@@ -28,7 +31,7 @@ LFLAGS 	+= -I./ -I /usr/include/ -lzstd -fopenmp #-lefence
 OBJECTS = lofar_udp_reader.o lofar_udp_misc.o lofar_udp_backends.o
 CLI_OBJECTS = $(OBJECTS) lofar_cli_extractor.o
 
-LIBRARY_TARGET = lofar_udp_manager.a
+LIBRARY_TARGET = lofudpman.a
 PREFIX = /usr/local
 
 %.o: %.c
@@ -41,9 +44,9 @@ all: $(CLI_OBJECTS) library
 	$(CXX) $(CXXFLAGS) lofar_cli_extractor.o $(LIBRARY_TARGET) -o ./lofar_udp_extractor $(LFLAGS)
 
 library: $(OBJECTS)
-	ar rc $(LIBRARY_TARGET) $(OBJECTS)
+	ar rc $(LIBRARY_TARGET).$(LIB_VER) $(OBJECTS)
+	cp ./$(LIBRARY_TARGET).$(LIB_VER) ./$(LIBRARY_TARGET)
 
-# TODO: install libraries as well...
 install: all
 	mkdir -p $(PREFIX)/bin/ && mkdir -p $(PREFIX)/include/
 	cp ./lofar_udp_extractor $(PREFIX)/bin/
@@ -55,6 +58,7 @@ install-local: all
 	mkdir -p ~/.local/bin/ && mkdir -p ~/.local/include/
 	cp ./lofar_udp_extractor ~/.local/bin/
 	cp ./*.h ~/.local/include/
+	cp ./*.a ~/.local/lib/
 	cp ./mockHeader/mockHeader ~/.local/bin/; exit 0;
 
 clean:
