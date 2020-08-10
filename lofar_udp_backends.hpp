@@ -95,6 +95,8 @@ void inline udp_copySplitPols(long iLoop, char *inputPortData, O **outputData, l
 
 		#ifndef __INTEL_COMPILER
 		#pragma omp simd
+		#else
+		#pragma GCC ivdep
 		#endif
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 			outputData[0][tsOutOffset] = *((I*) &(inputPortData[tsInOffset])); // Xr
@@ -127,6 +129,8 @@ void inline udp_reorder(long iLoop, char *inputPortData, O **outputData, int por
 
 		#ifndef __INTEL_COMPILER
 		#pragma omp simd
+		#else
+		#pragma GCC ivdep
 		#endif
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 			outputData[port][tsOutOffset] = *((I*) &(inputPortData[tsInOffset])); // Xr
@@ -158,6 +162,8 @@ void inline udp_reorderSplitPols(long iLoop, char *inputPortData, O **outputData
 
 		#ifndef __INTEL_COMPILER
 		#pragma omp simd
+		#else
+		#pragma GCC ivdep
 		#endif
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 			outputData[0][tsOutOffset] = *((I*) &(inputPortData[tsInOffset])); // Xr
@@ -189,6 +195,8 @@ void inline udp_reversed(long iLoop, char *inputPortData, O **outputData, int po
 
 		#ifndef __INTEL_COMPILER
 		#pragma omp simd
+		#else
+		#pragma GCC ivdep
 		#endif
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 			outputData[port][tsOutOffset] = *((I*) &(inputPortData[tsInOffset])); // Xr
@@ -220,6 +228,8 @@ void inline udp_reversedSplitPols(long iLoop, char *inputPortData, O **outputDat
 		
 		#ifndef __INTEL_COMPILER
 		#pragma omp simd
+		#else
+		#pragma GCC ivdep
 		#endif
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 			outputData[0][tsOutOffset] = *((I*) &(inputPortData[tsInOffset])); // Xr
@@ -252,6 +262,8 @@ void inline udp_stokes(long iLoop, char *inputPortData, O **outputData,  long la
 
 		#ifndef __INTEL_COMPILER
 		#pragma omp simd
+		#else
+		#pragma GCC ivdep
 		#endif
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 			outputData[0][tsOutOffset] = (*stokesFunc)(*((I*) &(inputPortData[tsInOffset])), *((I*) &(inputPortData[tsInOffset + 1 * timeStepSize])), *((I*) &(inputPortData[tsInOffset + 2 * timeStepSize])), *((I*) &(inputPortData[tsInOffset + 3 * timeStepSize])));
@@ -282,6 +294,8 @@ void inline udp_stokesDecimation(long iLoop, char *inputPortData, O **outputData
 
 		#ifndef __INTEL_COMPILER
 		#pragma omp simd
+		#else
+		#pragma GCC ivdep
 		#endif
 		for (int ts = 0; ts < UDPNTIMESLICE; ts++) {
 			tempVal += (*stokesFunc)(*((I*) &(inputPortData[tsInOffset])), *((I*) &(inputPortData[tsInOffset + 1 * timeStepSize])), *((I*) &(inputPortData[tsInOffset + 2 * timeStepSize])), *((I*) &(inputPortData[tsInOffset + 3 * timeStepSize])));
