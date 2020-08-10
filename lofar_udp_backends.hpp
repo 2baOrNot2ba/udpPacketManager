@@ -541,7 +541,6 @@ int lofar_udp_raw_loop(lofar_udp_meta *meta) {
 
 				case 101 ... 104:
 					#ifdef __INTEL_COMPILER
-					printf("Compile fail\n");
 					#pragma omp task firstprivate(iLoop, lastInputPacketOffset)
 					#endif
 					udp_stokesDecimation<I, O, stokesI, decimation>(iLoop, inputPortData, outputData, lastInputPacketOffset, packetOutputLength, timeStepSize, totalBeamlets, portBeamlets, cumulativeBeamlets);

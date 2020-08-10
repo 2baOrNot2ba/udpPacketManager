@@ -9,15 +9,15 @@ CC		= gcc
 CXX		= g++
 endif
 
-# Detemrine the max threads per socket to speed up execution via OpenMP
+# Detemrine the max threads per socket to speed up execution via OpenMP with ICC (GCC falls over if we set too many)
 THREADS = $(shell cat /proc/cpuinfo | uniq | grep -m 2 "siblings" | cut -d ":" -f 2 | sort --numeric --unique | awk '{printf("%d", $$1);}')
 
-CFLAGS 	+= -march=native -W -Wall -O3 -march=native -DVERSION=0.2 -DVERSIONCLI=0.1 -DOMP_THREADS=$(THREADS) -fPIC #-g -DALLOW_VERBOSE #-D__SLOWDOWN
+CFLAGS 	+= -march=native -W -Wall -O3 -march=native -DVERSION=0.2 -DVERSIONCLI=0.1 -fPIC #-g -DALLOW_VERBOSE #-D__SLOWDOWN
 
 ifeq ($(CC), icc)
-CFLAGS += -fast -static -static-intel -qopenmp-link=static
+CFLAGS += -fast -static -static-intel -qopenmp-link=static -DOMP_THREADS=$(THREADS)
 else
-CFLAGS += -funswitch-loops
+CFLAGS += -funswitch-loops -DOMP_THREADS=5
 endif
 
 CXXFLAGS += $(CFLAGS) -std=c++17
