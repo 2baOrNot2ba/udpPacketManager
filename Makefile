@@ -18,8 +18,10 @@ THREADS = $(shell cat /proc/cpuinfo | uniq | grep -m 2 "siblings" | cut -d ":" -
 CFLAGS 	+= -march=native -W -Wall -O3 -march=native -DVERSION=$(LIB_VER) -DVERSIONCLI=$(CLI_VER) -fPIC #-g -DALLOW_VERBOSE #-D__SLOWDOWN
 
 ifeq ($(CC), icc)
+AR = xiar
 CFLAGS += -fast -static -static-intel -qopenmp-link=static -DOMP_THREADS=$(THREADS)
 else
+AR = ar
 CFLAGS += -funswitch-loops -DOMP_THREADS=5
 endif
 
@@ -44,7 +46,7 @@ all: $(CLI_OBJECTS) library
 	$(CXX) $(CXXFLAGS) lofar_cli_extractor.o $(LIBRARY_TARGET) -o ./lofar_udp_extractor $(LFLAGS)
 
 library: $(OBJECTS)
-	ar rc $(LIBRARY_TARGET).$(LIB_VER) $(OBJECTS)
+	$(AR) rc $(LIBRARY_TARGET).$(LIB_VER) $(OBJECTS)
 	cp ./$(LIBRARY_TARGET).$(LIB_VER) ./$(LIBRARY_TARGET)
 
 install: all
