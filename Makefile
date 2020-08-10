@@ -31,7 +31,7 @@ LFLAGS 	+= -I./ -I /usr/include/ -lzstd -fopenmp #-lefence
 OBJECTS = lofar_udp_reader.o lofar_udp_misc.o lofar_udp_backends.o
 CLI_OBJECTS = $(OBJECTS) lofar_cli_extractor.o
 
-LIBRARY_TARGET = lofudpman.a
+LIBRARY_TARGET = liblofudpman.a
 PREFIX = /usr/local
 
 %.o: %.c
