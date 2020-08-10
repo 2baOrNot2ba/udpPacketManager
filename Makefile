@@ -20,9 +20,11 @@ CFLAGS 	+= -march=native -W -Wall -O3 -march=native -DVERSION=$(LIB_VER) -DVERSI
 ifeq ($(CC), icc)
 AR = xiar
 CFLAGS += -fast -static -static-intel -qopenmp-link=static -DOMP_THREADS=$(THREADS)
+ILIBLINK = $(ONEAPI_ROOT)/compiler/latest/linux/compiler/lib/intel64_lin/libiomp5.a $(ONEAPI_ROOT)/compiler/latest/linux/compiler/lib/intel64_lin/libirc.a
 else
 AR = ar
 CFLAGS += -funswitch-loops -DOMP_THREADS=5
+ILIBLINK = ""
 endif
 
 CXXFLAGS += $(CFLAGS) -std=c++17
@@ -47,7 +49,7 @@ all: $(CLI_OBJECTS) library
 
 library: $(OBJECTS)
 	$(AR) rc $(LIBRARY_TARGET).$(LIB_VER) $(OBJECTS)
-	cp ./$(LIBRARY_TARGET).$(LIB_VER) ./$(LIBRARY_TARGET)
+	cp ./$(LIBRARY_TARGET).$(LIB_VER) ./$(LIBRARY_TARGET) $(ILIBLINK)
 
 install: all
 	mkdir -p $(PREFIX)/bin/ && mkdir -p $(PREFIX)/include/
