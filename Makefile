@@ -15,7 +15,7 @@ THREADS = $(shell cat /proc/cpuinfo | uniq | grep -m 2 "siblings" | cut -d ":" -
 CFLAGS 	+= -march=native -W -Wall -O3 -march=native -DVERSION=0.2 -DVERSIONCLI=0.1 -DOMP_THREADS=$(THREADS) -funswitch-loops -fPIC #-g -DALLOW_VERBOSE #-D__SLOWDOWN
 
 ifeq ($(CC), icc)
-CFLAGS += -static-intel -qopenmp-link=static
+CFLAGS += -fast -static -static-intel -static-libcxa -qopenmp-link=static
 endif
 
 CXXFLAGS += $(CFLAGS) -std=c++17
@@ -42,13 +42,14 @@ library: $(OBJECTS)
 	ar rc $(LIBRARY_TARGET) $(OBJECTS)
 
 # TODO: install libraries as well...
-install:
+install: all
 	mkdir -p $(PREFIX)/bin/ && mkdir -p $(PREFIX)/include/
 	cp ./lofar_udp_extractor $(PREFIX)/bin/
 	cp ./*.h $(PREFIX)/include/
+	cp ./*.a ${PREFIX}/lib/
 	cp ./mockHeader/mockHeader $(PREFIX)/bin/; exit 0;
 
-install-local:
+install-local: all
 	mkdir -p ~/.local/bin/ && mkdir -p ~/.local/include/
 	cp ./lofar_udp_extractor ~/.local/bin/
 	cp ./*.h ~/.local/include/
