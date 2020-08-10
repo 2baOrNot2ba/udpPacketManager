@@ -497,10 +497,13 @@ int main(int argc, char  *argv[]) {
 			if (multiMaxPackets[eventLoop] < packetsToWrite) packetsToWrite = multiMaxPackets[eventLoop];
 
 			CLICK(tick0);
+			
+			#ifndef BENCHMARKING
 			for (int out = 0; out < reader->meta->numOutputs; out++) {
 				VERBOSE(printf("Writing %ld bytes (%ld packets) to disk for output %d...\n", packetsToWrite * reader->meta->packetOutputLength[out], packetsToWrite, out));
 				fwrite(reader->meta->outputData[out], sizeof(char), packetsToWrite * reader->meta->packetOutputLength[out], outputFiles[out]);
 			}
+			#endif
 
 			packetsWritten += packetsToWrite;
 			packetsProcessed += reader->meta->packetsPerIteration;
