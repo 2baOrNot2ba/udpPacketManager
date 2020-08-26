@@ -102,19 +102,27 @@ Processing Modes
 ### Re-ordering Operations
 #### 10: "Raw To Beamlet-Majour"
 - Take the input payload, padding where needed, remove the header, reorder the data such that instead of having (f0t0, f0t1... f0t15, f1t0...) we have (f0t0, f1t0, f2t0)...
-- N input files -> 1 output file
+- N input files -> N output files
 
 #### 11: "Raw to Beamlet-Majour, Split Polarizations"
 - Combintion of (2) and (10), split output data per (Xr, Xi, Yr, Yi) polarizations
 - N input files -> 4 output files
 
+#### 12: "Raw To Beamlet-Majour, Single Output"
+- Apply (10) but keep all output data in the same array
+- N input files -> 1 output file
+
 #### 20: "Raw To Beamlet-Majour, Frequecy Reversed"
 - Modified version of (10), where instead of (f0t0, f1t0...) we now output (fNt0, fN-1t0, ...), following the standard used for pulsar observations
-- N input files -> 1 output file
+- N input files -> N output files
 
 #### 21: "Raw To Beamlet-Majour, Frequency Reversed, Split Polarizations"
 - Combination of (2) and (20), where we split the output data per Xr, Xi, Yr, Yi) polarizations
 - N input files -> 4 output files
+
+#### 22: "Raw To Beamlet-Majour, Frequency Reversed, Single Output"
+- Apply (20) but keep all output data in the same array
+- N input files -> 1 output file
 
 
 ### Processing Operations
