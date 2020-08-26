@@ -501,12 +501,18 @@ int lofar_udp_setup_processing(lofar_udp_meta *meta) {
 		case 11:
 			meta->processFunc = &lofar_udp_raw_udp_reorder_split_pols;
 			break;
+		case 12:
+			meta->processFunc = &lofar_udp_raw_udp_reorder_single_output;
+			break;
 
 		case 20:
 			meta->processFunc = &lofar_udp_raw_udp_reversed;
 			break;
 		case 21:
 			meta->processFunc = &lofar_udp_raw_udp_reversed_split_pols;
+			break;
+		case 22:
+			meta->processFunc = &lofar_udp_raw_udp_reversed_single_output;
 			break;
 
 		// Base Stokes Methods
@@ -606,9 +612,14 @@ int lofar_udp_setup_processing(lofar_udp_meta *meta) {
 
 		case 10:
 		case 20:
-			meta->numOutputs = 1;
+			meta->numOutputs = meta->numPorts;
 			meta->outputBitMode = meta->inputBitMode;
 			break;
+
+		case 12:
+		case 22:
+			meta->numOutputs = 1;
+			meta->outputBitMode = meta->inputBitMode;
 
 		// Base Stokes Methods
 		case 100:

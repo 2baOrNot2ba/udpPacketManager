@@ -60,9 +60,11 @@ void helpMessages() {
 
 	printf("10: Raw UDP to Beamlet Major Output: Reverse the major order in the output (no headers).\n");
 	printf("11: Raw UDP to Beamlet Major Split Pols Output: combine (2) and (10).\n\n");
+	printf("12: Raw UDP to Beamlet Major Single Output: Apply (10) but keep all of the data in the same output array.\n\n");
 	
 	printf("20: Raw UDP to Beamlet Major, Frequency Reversed Output: Reverse the major order and beamlet order in the output\n");
 	printf("21: Raw UDP to Beamlet Major, Frequency Reversed, Split Pols Output: combine (2) and (20).\n\n");
+	printf("11: Raw UDP to Beamlet Major, Frequency Reversed Single Output: Apply (20) but kepp all of the data in the same output array.\n\n");
 
 	printf("100: Raw UDP to Stokes I: Form a 32-bit float Stokes I for the input.\n");
 	printf("110: Raw UDP to Stokes Q: Form a 32-bit float Stokes Q for the input.\n");
@@ -202,7 +204,7 @@ int main(int argc, char  *argv[]) {
 	// processingMode -> N output-files 
 	outputFilesCount = ports;
 	if (processingMode == 2 || processingMode == 11 || processingMode == 21) outputFilesCount = UDPNPOL;
-	else if (processingMode == 10 || processingMode == 20 || processingMode > 99) outputFilesCount = 1;
+	else if (processingMode == 12 || processingMode == 22 || processingMode > 99) outputFilesCount = 1;
 
 	// Sanity check a few inputs
 	if ( (strcmp(inputFormat, "") == 0) || (ports == 0) || (packetsPerIteration < 2)  || (replayDroppedPackets > 1 || replayDroppedPackets < 0) || (processingMode > 1000 || processingMode < 0) || (seconds < 0)) {

@@ -114,6 +114,24 @@ int lofar_udp_raw_udp_reorder_split_pols(lofar_udp_meta *meta) {
 }
 
 
+int lofar_udp_raw_udp_reorder_single_output(lofar_udp_meta *meta) {
+	VERBOSE(if (meta->VERBOSE) printf("Entered C++ call for lofar_udp_raw_udp_reorder_split_\n"));
+	switch(meta->inputBitMode) {
+		case 4:
+			fprintf(stderr, "4-bit mode is not yet supported, exiting.\n");
+			return 1;
+		case 8:
+			return lofar_udp_raw_loop<signed char, signed char, 12>(meta);
+		case 16:
+			return lofar_udp_raw_loop<signed short, signed short, 12>(meta);
+
+		default:
+			fprintf(stderr, "Unexpected bitmode %d. Exiting.\n", meta->inputBitMode);
+			return 1;
+	}
+}
+
+
 int lofar_udp_raw_udp_reversed(lofar_udp_meta *meta) {
 	VERBOSE(if (meta->VERBOSE) printf("Entered C++ call for lofar_udp_raw_udp_reversed\n"));
 	switch(meta->inputBitMode) {
@@ -142,6 +160,24 @@ int lofar_udp_raw_udp_reversed_split_pols(lofar_udp_meta *meta) {
 			return lofar_udp_raw_loop<signed char, signed char, 21>(meta);
 		case 16:
 			return lofar_udp_raw_loop<signed short, signed short, 21>(meta);
+
+		default:
+			fprintf(stderr, "Unexpected bitmode %d. Exiting.\n", meta->inputBitMode);
+			return 1;
+	}
+}
+
+
+int lofar_udp_raw_udp_reversed_single_output(lofar_udp_meta *meta) {
+	VERBOSE(if (meta->VERBOSE) printf("Entered C++ call for lofar_udp_raw_udp_reversed_split\n"));
+	switch(meta->inputBitMode) {
+		case 4:
+			fprintf(stderr, "4-bit mode is not yet supported, exiting.\n");
+			return 1;
+		case 8:
+			return lofar_udp_raw_loop<signed char, signed char, 22>(meta);
+		case 16:
+			return lofar_udp_raw_loop<signed short, signed short, 22>(meta);
 
 		default:
 			fprintf(stderr, "Unexpected bitmode %d. Exiting.\n", meta->inputBitMode);
