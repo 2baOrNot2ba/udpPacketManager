@@ -181,6 +181,11 @@ int lofar_udp_skip_to_packet(lofar_udp_reader *reader) {
 			returnVal = lofar_udp_reader_read_step(reader);
 			if (returnVal > 0) return returnVal;
 
+			// Account for packet ddsync between ports
+			for (int portInner = 0; portInner < reader->meta->numPorts; portInner++) {
+				reader->portLastDroppedPackets[portInner] = lofar_get_packet_number(&(reader->meta->inputData[portInner][lastPacketOffset])) - currentPacket - reader->meta->packetsPerIteration;
+			}
+
 			// Get the new last packet
 			currentPacket = lofar_get_packet_number(&(reader->meta->inputData[port][lastPacketOffset]));
 
@@ -839,45 +844,15 @@ long lofar_udp_reader_nchars(lofar_udp_reader *reader, const int port, char *tar
 
 	if (reader->compressedReader) {
 		// Compressed file: Perform streaming decompression on a zstandard compressed file
-		VERBOSE(if (reader->meta->VERBOSE) printf("reader_nchars: Entering read request (compressed): %d, %ld\n", port, nchars));
+		VERBOSE(if (reader->meta->VERBOSE) printf("reader_nchars: Entering read request (compressed): %d, %ld, %ld\n", port, nchars, knownOffset));
 
-		long dataRead = 0, portOutputLength = reader->packetsPerIteration * reader->meta->portPacketLength[port];
+		long dataRead = 0;
 		size_t previousDecompressionPos = 0;
 		int compDataRead = 0, byteDelta = 0, returnVal = 0;
-		// ZSTD decompress + pass along data to normal input channel
 
-		// Check decompression buffer for remanants of the last read operation
-		if ((signed long int) reader->decompressionTracker[port].pos > portOutputLength) {
-			VERBOSE(if (reader->meta->VERBOSE) printf("reader_nchars: Compressed data in cache: %d, %ld\n", port, reader->decompressionTracker[port].pos));
-			VERBOSE(if (reader->meta->VERBOSE) printf("reader_nchars: Compressed %d %ld/%ld: %ld %ld %ld %ld %ld\n", port, dataRead, nchars, reader->decompressionTracker[port].pos, reader->decompressionTracker[port].size, reader->readingTracker[port].pos, reader->readingTracker[port].size, portOutputLength));
+		// Ensure the decompression buffer has been updated
+		reader->decompressionTracker[port].pos = knownOffset;
 
-			// If the amount of requested data is greater than the amount of data in the buffer
-			if (nchars > ((long int) reader->decompressionTracker[port].pos - (long int) portOutputLength)) {
-				// Read the remainder of the buffer, update the new offset location to be after this block of data
-				byteDelta = (long int) reader->decompressionTracker[port].pos - (long int) portOutputLength;
-				reader->decompressionTracker[port].pos = byteDelta + knownOffset;
-			} else {
-				// Read only what we need, update the new offset to it's new position
-				byteDelta = nchars;
-				reader->decompressionTracker[port].pos += nchars;
-				//fprintf(stderr, "Unreachable target; something has gone wrong with decompression cache reuse (excessively small read) (%d: %ld, %ld, %ld, %ld, %ld). Exiting.\n", port, nchars, knownOffset, dataRead, reader->decompressionTracker[port].pos, reader->decompressionTracker[port].size);
-
-			}
-
-			// Copy over the required data, update our progress and offsets
-			VERBOSE(if (reader->meta->VERBOSE) printf("reader_nchars: Cache copy: %d, %ld->%ld\n", port, dataRead, reader->decompressionTracker[port].pos));
-
-			memmove(&(targetArray[dataRead]), &(reader->meta->inputData[port][portOutputLength]), byteDelta);
-			dataRead += byteDelta;
-
-			VERBOSE(if (reader->meta->VERBOSE) printf("reader_nchars: Compressed data cache ptrs: %d, %ld, %ld\n", port, reader->decompressionTracker[port].pos, portOutputLength));
-			
-			// Return if we have all the data we need
-			if (dataRead == nchars) return dataRead;
-		} else {
-			VERBOSE(if (reader->meta->VERBOSE) printf("reader_nchars: cache copy not needed, %ld, %ld\n", reader->decompressionTracker[port].pos, portOutputLength););
-			reader->decompressionTracker[port].pos = knownOffset;
-		}
 
 		// Loop until we hit an exit criteria (EOF / zstd error / nchars)
 		// Suspicion after buffer changes: this might enter an infinite loop if the buffer isn't large enough to hold the data
