@@ -379,6 +379,14 @@ int lofar_udp_file_reader_reuse(lofar_udp_reader *reader, const long startingPac
 	long localMaxPackets = packetsReadMax;
 	if (packetsReadMax < 0) localMaxPackets = LONG_MAX;
 
+	// If we only had a partial read during the last iteration, finish filling the buffer
+	if (reader->packetsPerIteration != reader->meta->packetsPerIteration) {
+		#pragma omp parallel for
+		for (int port = 0; port < reader->meta->numPorts; port++) {
+			lofar_udp_reader_nchars(reader, port, &(reader->meta->inputData[port][reader->decompressionTracker[port].pos]), reader->packetsPerIteration * reader->meta->portPacketLength[port] - reader->decompressionTracker[port].pos, reader->decompressionTracker[port].pos);
+		}
+	}
+
 	// Reset old variables
 	reader->meta->packetsPerIteration = reader->packetsPerIteration;
 	reader->meta->packetsRead = 0;
@@ -880,8 +888,11 @@ long lofar_udp_reader_nchars(lofar_udp_reader *reader, const int port, char *tar
 						if (reader->meta->VERBOSE) printf("Reader terminating: %ld read, %ld requested, %ld\n", dataRead, nchars, nchars - dataRead);
 					});
 					if (dataRead >= nchars) return dataRead;
-					printf("%d, %s, %ld, %ld, %ld, %ld, %ld, %ld, %ld\n", port, ZSTD_getErrorName(returnVal), dataRead, nchars, nchars - dataRead,reader->readingTracker[port].pos, reader->readingTracker[port].size, reader->decompressionTracker[port].pos, reader->decompressionTracker[port].size);
 
+					if (reader->decompressionTracker[port].pos == reader->decompressionTracker[port].size) {
+						fprintf(stderr, "Failed to read %ld chars on port %d before filling the buffer. Attempting to continue...\n", nchars, port);
+						return dataRead;
+					}
 				}
 			}
 
