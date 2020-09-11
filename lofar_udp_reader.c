@@ -900,7 +900,7 @@ long lofar_udp_reader_nchars(lofar_udp_reader *reader, const int port, char *tar
 					byteDelta = ((long) reader->decompressionTracker[port].pos - (long) previousDecompressionPos);
 
 					// Update the total data read + check if we have reached our goal
-					dataRead += byteDelta
+					dataRead += byteDelta;
 					VERBOSE(if (dataRead >= nchars) {
 						if (reader->meta->VERBOSE) printf("Reader terminating: %ld read, %ld requested, %d\n", dataRead, nchars, nchars - dataRead);
 					});
