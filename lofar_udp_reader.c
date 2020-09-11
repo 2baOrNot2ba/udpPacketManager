@@ -972,6 +972,9 @@ int lofar_udp_reader_read_step(lofar_udp_reader *reader) {
 	// Reset the packets per iteration to the intended length (can be lowered due to out of order packets)
 	reader->meta->packetsPerIteration = reader->packetsPerIteration;
 
+	// If packets were dropped, shift the remaining packets back to the start of the array
+	if ((checkReturnValue = lofar_udp_shift_remainder_packets(reader, reader->meta->portLastDroppedPackets, 1)) > 0) return 1;
+
 	// Ensure we aren't passed the read length cap
 	if (reader->meta->packetsRead >= (reader->meta->packetsReadMax - reader->meta->packetsPerIteration)) {
 		reader->meta->packetsPerIteration = reader->meta->packetsReadMax - reader->meta->packetsRead;
@@ -979,8 +982,6 @@ int lofar_udp_reader_read_step(lofar_udp_reader *reader) {
 		returnVal = -2;
 	}
 
-	// If packets were dropped, shift the remaining packets back to the start of the array
-	if ((checkReturnValue = lofar_udp_shift_remainder_packets(reader, reader->meta->portLastDroppedPackets, 1)) > 0) return 1;
 	//else if (checkReturnValue < 0) if(lofar_udp_realign_data(reader) > 0) return 1;
 	
 	// Read in the required new data
