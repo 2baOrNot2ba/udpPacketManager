@@ -183,9 +183,7 @@ int lofar_udp_skip_to_packet(lofar_udp_reader *reader) {
 
 			// Account for packet ddsync between ports
 			for (int portInner = 0; portInner < reader->meta->numPorts; portInner++) {
-				reader->meta->portLastDroppedPackets[portInner] = lofar_get_packet_number(&(reader->meta->inputData[portInner][lastPacketOffset])) - currentPacket - reader->meta->packetsPerIteration;
-				printf("%d, %ld\n", portInner, reader->meta->portLastDroppedPackets[portInner]);
-				sleep(1);
+				reader->meta->portLastDroppedPackets[portInner] = (currentPacket + reader->meta->packetsPerIteration) - lofar_get_packet_number(&(reader->meta->inputData[portInner][lastPacketOffset]));
 			}
 
 			// Get the new last packet
