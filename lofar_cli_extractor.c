@@ -422,6 +422,17 @@ int main(int argc, char  *argv[]) {
 		localLoops = 0;
 		returnVal = 0;
 
+		// Initialise / empty the packets lost array
+		for (int port = 0; port < reader->meta->numPorts; port++) eventPacketsLost[port] = 0;
+
+		// If we are not on the first event, set-up the reader for the current event
+		if (loops != 0) {
+			if ((returnVal = lofar_udp_file_reader_reuse(reader, startingPackets[eventLoop], multiMaxPackets[eventLoop])) > 0) {
+				fprintf(stderr, "Error re-initialising reader for event %d (error %d), exiting.\n", eventLoop, returnVal);
+				return 1;
+			}
+		} 
+		
 		// Output information about the current/last event if we're performing more than one event
 		if (eventCount > 1) 
 			if (silent == 0) {
@@ -440,16 +451,6 @@ int main(int argc, char  *argv[]) {
 				printf("============= End Information ==============\n");
 			}
 
-		// Initialise / empty the packets lost array
-		for (int port = 0; port < reader->meta->numPorts; port++) eventPacketsLost[port] = 0;
-
-		// If we are not on the first event, set-up the reader for the current event
-		if (loops != 0) {
-			if ((returnVal = lofar_udp_file_reader_reuse(reader, startingPackets[eventLoop], multiMaxPackets[eventLoop])) > 0) {
-				fprintf(stderr, "Error re-initialising reader for event %d (error %d), exiting.\n", eventLoop, returnVal);
-				return 1;
-			}
-		} 
 
 		// Get the starting packet for output file names
 		startingPacket = reader->meta->leadingPacket;
