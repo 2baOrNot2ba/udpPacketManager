@@ -328,7 +328,7 @@ lofar_udp_reader* lofar_udp_file_reader_setup(FILE **inputFiles, lofar_udp_meta 
 
 			// Setup the decompressed data buffer/struct
 			bufferSize = meta->packetsPerIteration * meta->portPacketLength[port];
-			VERBOSE(if (meta->VERBOSE) printf("reader_setup: expending decompression buffer by %d bytes\n", bufferSize % ZSTD_DStreamOutSize()));
+			VERBOSE(if (meta->VERBOSE) printf("reader_setup: expending decompression buffer by %ld bytes\n", bufferSize % ZSTD_DStreamOutSize()));
 			bufferSize += bufferSize % ZSTD_DStreamOutSize();
 			reader.decompressionTracker[port].size = bufferSize;
 			reader.decompressionTracker[port].pos = 0; // Initialisation for our step-by-step reader
@@ -877,10 +877,10 @@ long lofar_udp_reader_nchars(lofar_udp_reader *reader, const int port, char *tar
 					// Update the total data read + check if we have reached our goal
 					dataRead += byteDelta;
 					VERBOSE(if (dataRead >= nchars) {
-						if (reader->meta->VERBOSE) printf("Reader terminating: %ld read, %ld requested, %d\n", dataRead, nchars, nchars - dataRead);
+						if (reader->meta->VERBOSE) printf("Reader terminating: %ld read, %ld requested, %ld\n", dataRead, nchars, nchars - dataRead);
 					});
 					if (dataRead >= nchars) return dataRead;
-
+					printf("%d, %ld\n", port, dataRead);
 
 				}
 			}
