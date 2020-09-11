@@ -376,7 +376,7 @@ int lofar_udp_file_reader_reuse(lofar_udp_reader *reader, const long startingPac
 	// Reset old variables
 	reader->meta->packetsPerIteration = reader->packetsPerIteration;
 	reader->meta->packetsRead = 0;
-	reader->meta->packetsReadMax = reader->packetsPerIteration;
+	reader->meta->packetsReadMax = startingPacket - reader->lastPacket + 2 * reader->packetsPerIteration;
 	reader->meta->lastPacket = startingPacket;
 
 	for (int port = 0; port < reader->meta->numPorts; port++) {
