@@ -50,7 +50,8 @@ void helpMessages() {
 	printf("-a: <args>		Call mockHeader with the specific flags to prefix output files with a header (default: False)\n");
 	printf("-f:		Append files if they already exist (default: False, exit if exists)\n");
 	
-	VERBOSE(printf("-v:		Enable verbose output (default: False)\n"));
+	VERBOSE(printf("-v:		Enable verbose output (default: False)\n");
+			printf("-V:		Enable highly verbose output (default: False)\n"));
 
 	printf("\n\nProcessing modes:\n");
 	printf("0: Raw UDP to Single Output: read in a given set of packet captures, rewrite packets on each port with padding for dropped / out of order packets.\n");
@@ -103,7 +104,7 @@ int main(int argc, char  *argv[]) {
 	char **dateStr; // Sub elements need to be free'd too.
 
 	// Standard ugly input flags parser
-	while((inputOpt = getopt(argc, argv, "rcqfvi:o:m:u:t:s:e:p:a:")) != -1) {
+	while((inputOpt = getopt(argc, argv, "rcqfvVi:o:m:u:t:s:e:p:a:")) != -1) {
 		input = 1;
 		switch(inputOpt) {
 			
@@ -162,7 +163,11 @@ int main(int argc, char  *argv[]) {
 				break;
 
 			case 'v': 
-				VERBOSE(verbose = 1;);
+				if (!verbose)
+					VERBOSE(verbose = 1;);
+				break;
+			case 'V': 
+				VERBOSE(verbose = 2;);
 				break;
 
 
@@ -432,7 +437,7 @@ int main(int argc, char  *argv[]) {
 				return 1;
 			}
 		} 
-		
+
 		// Output information about the current/last event if we're performing more than one event
 		if (eventCount > 1) 
 			if (silent == 0) {

@@ -135,7 +135,7 @@ int lofar_udp_skip_to_packet_meta(lofar_udp_reader *reader, long currentPacket, 
  */
 int lofar_udp_skip_to_packet(lofar_udp_reader *reader) {
 	// This is going to be fun to document...
-	long currentPacket, lastPacketOffset, guessPacket, packetDelta, scanning = 0, startOff, nextOff, endOff;
+	long currentPacket, lastPacketOffset, guessPacket, packetDelta, scanning = 0, startOff, nextOff, endOff, locPort = 0;
 	int packetShift[MAX_NUM_PORTS], nchars, returnLen, returnVal = 0;
 
 	// Initialise the offset shift needed
@@ -145,6 +145,7 @@ int lofar_udp_skip_to_packet(lofar_udp_reader *reader) {
 
 	// Scanning across each port,
 	for (int port = 0; port < reader->meta->numPorts; port++) {
+		locPort = port;
 		// Get the offset to the last packet in the inputData array on a given port
 		lastPacketOffset = (reader->meta->packetsPerIteration - 1) * reader->meta->portPacketLength[port];
 
@@ -185,7 +186,8 @@ int lofar_udp_skip_to_packet(lofar_udp_reader *reader) {
 			currentPacket = lofar_get_packet_number(&(reader->meta->inputData[port][lastPacketOffset]));
 
 			// Print a status update to the CLI
-			printf("\rScanning to packet %ld (~%.02f%% complete, currently at packet %ld, %ld to go)", reader->meta->lastPacket, (float) 100.0 -  (float) (reader->meta->lastPacket - currentPacket) / (packetDelta) * 100.0, currentPacket, reader->meta->lastPacket - currentPacket);
+			VERBOSE(for (locPort = 0; locPort < reader->meta->numPorts; locPort++))
+				printf("\rScanning to packet %ld (~%.02f%% complete, currently at packet %ld on port %d, %ld to go)", reader->meta->lastPacket, (float) 100.0 -  (float) (reader->meta->lastPacket - currentPacket) / (packetDelta) * 100.0, currentPacket, locPort, reader->meta->lastPacket - currentPacket);
 			fflush(stdout);
 		}
 		if (scanning) printf("\33[2K\rReached target packet %ld on port %d.\n", reader->meta->lastPacket, port);
