@@ -896,15 +896,8 @@ long lofar_udp_reader_nchars(lofar_udp_reader *reader, const int port, char *tar
 						return dataRead;
 					}
 
-					// Determine how much data we need to copy from the buffer
+					// Determine how much data we just added to the buffer
 					byteDelta = ((long) reader->decompressionTracker[port].pos - (long) previousDecompressionPos);
-					if ((long) (dataRead + byteDelta) >= nchars) byteDelta = nchars - dataRead;
-					
-					/*else {
-						dataRead += byteDelta;
-						//fprintf(stderr, "Unreachable target; something has gone wrong with decompression (%d: %ld, %ld, %ld, %ld, %ld). Exiting.\n", port, nchars, knownOffset, dataRead, reader->decompressionTracker[port].pos, reader->decompressionTracker[port].size);
-					}
-					*/
 
 					// Update the total data read + check if we have reached our goal
 					dataRead += byteDelta;
