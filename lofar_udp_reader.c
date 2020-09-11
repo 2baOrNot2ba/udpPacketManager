@@ -135,7 +135,7 @@ int lofar_udp_skip_to_packet_meta(lofar_udp_reader *reader, long currentPacket, 
  */
 int lofar_udp_skip_to_packet(lofar_udp_reader *reader) {
 	// This is going to be fun to document...
-	long currentPacket, lastPacketOffset, guessPacket, packetDelta, scanning = 0, startOff, nextOff, endOff, locPort = 0;
+	long currentPacket, lastPacketOffset, guessPacket, packetDelta, scanning = 0, startOff, nextOff, endOff;
 	int packetShift[MAX_NUM_PORTS], nchars, returnLen, returnVal = 0;
 
 	// Initialise the offset shift needed
@@ -145,7 +145,6 @@ int lofar_udp_skip_to_packet(lofar_udp_reader *reader) {
 
 	// Scanning across each port,
 	for (int port = 0; port < reader->meta->numPorts; port++) {
-		locPort = port;
 		// Get the offset to the last packet in the inputData array on a given port
 		lastPacketOffset = (reader->meta->packetsPerIteration - 1) * reader->meta->portPacketLength[port];
 
@@ -186,8 +185,7 @@ int lofar_udp_skip_to_packet(lofar_udp_reader *reader) {
 			currentPacket = lofar_get_packet_number(&(reader->meta->inputData[port][lastPacketOffset]));
 
 			// Print a status update to the CLI
-			VERBOSE(for (locPort = 0; locPort < reader->meta->numPorts; locPort++))
-				printf("\rScanning to packet %ld (~%.02f%% complete, currently at packet %ld on port %d, %ld to go)", reader->meta->lastPacket, (float) 100.0 -  (float) (reader->meta->lastPacket - currentPacket) / (packetDelta) * 100.0, currentPacket, locPort, reader->meta->lastPacket - currentPacket);
+			printf("\rScanning to packet %ld (~%.02f%% complete, currently at packet %ld on port %d, %ld to go)", reader->meta->lastPacket, (float) 100.0 -  (float) (reader->meta->lastPacket - currentPacket) / (packetDelta) * 100.0, currentPacket, port, reader->meta->lastPacket - currentPacket);
 			fflush(stdout);
 		}
 		if (scanning) printf("\33[2K\rReached target packet %ld on port %d.\n", reader->meta->lastPacket, port);
@@ -325,6 +323,7 @@ lofar_udp_reader* lofar_udp_file_reader_setup(FILE **inputFiles, lofar_udp_meta 
 
 			// Setup the decompressed data buffer/struct
 			bufferSize = meta->packetsPerIteration * meta->portPacketLength[port];
+			VERBOSE(if (meta->VERBOSE) printf("reader_setup: expending decompression buffer by %d bytes\n", bufferSize % ZSTD_DStreamOutSize()));
 			bufferSize += bufferSize % ZSTD_DStreamOutSize();
 			reader.decompressionTracker[port].size = bufferSize;
 			reader.decompressionTracker[port].pos = 0; // Initialisation for our step-by-step reader
@@ -1408,14 +1407,18 @@ int lofar_udp_shift_remainder_packets(lofar_udp_reader *reader, const int shiftP
 			destOffset = -1 * portPacketLength * handlePadding;
 			byteShift = sizeof(char) * (packetShift + handlePadding) * portPacketLength;
 
+			VERBOSE(if (meta->VERBOSE) printf("P: %d, SO: %ld, DO: %d, BS: %ld IDO: %ld\n", port, sourceOffset, destOffset, byteShift, destOffset + byteShift));
+
 			if (reader->compressedReader) {
 				if ((long) reader->decompressionTracker[port].pos > meta->portPacketLength[port] * meta->packetsPerIteration) {
 					byteShift += reader->decompressionTracker[port].pos - meta->portPacketLength[port] * meta->packetsPerIteration;
 					reader->decompressionTracker[port].pos = destOffset + byteShift;
 				}
+				VERBOSE(if (meta->VERBOSE) printf("Compressed offset: P: %d, SO: %ld, DO: %d, BS: %ld IDO: %ld\n", port, sourceOffset, destOffset, byteShift, destOffset + byteShift));
+
 			}
 
-			VERBOSE(if (meta->VERBOSE) printf("SO: %ld, DO: %d, BS: %ld IDO: %ld\n", sourceOffset, destOffset, byteShift, destOffset + byteShift));
+			VERBOSE(if (meta->VERBOSE) printf("P: %d, SO: %ld, DO: %d, BS: %ld IDO: %ld\n", port, sourceOffset, destOffset, byteShift, destOffset + byteShift));
 
 			// Mmemove the data as needed (memcpy can't act on the same array)
 			memmove(&(inputData[destOffset]), &(inputData[sourceOffset]), byteShift);
