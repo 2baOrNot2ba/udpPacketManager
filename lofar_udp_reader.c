@@ -880,7 +880,7 @@ long lofar_udp_reader_nchars(lofar_udp_reader *reader, const int port, char *tar
 						if (reader->meta->VERBOSE) printf("Reader terminating: %ld read, %ld requested, %ld\n", dataRead, nchars, nchars - dataRead);
 					});
 					if (dataRead >= nchars) return dataRead;
-					printf("%d, %ld\n", port, dataRead);
+					printf("%d, %ld, %ld, %ld, %ld\n", port, dataRead, reader->readingTracker[port].pos, reader->readingTracker[port].size);
 
 				}
 			}
