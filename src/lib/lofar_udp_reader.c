@@ -135,7 +135,7 @@ int lofar_udp_skip_to_packet_meta(lofar_udp_reader *reader, long currentPacket, 
  */
 int lofar_udp_skip_to_packet(lofar_udp_reader *reader) {
 	// This is going to be fun to document...
-	long currentPacket, lastPacketOffset, guessPacket, packetDelta, scanning = 0, startOff, nextOff, endOff;
+	long currentPacket, lastPacket, lastPacketOffset, guessPacket, packetDelta, scanning = 0, startOff, nextOff, endOff;
 	int packetShift[MAX_NUM_PORTS], nchars, returnLen, returnVal = 0;
 
 	// Initialise the offset shift needed
@@ -171,13 +171,14 @@ int lofar_udp_skip_to_packet(lofar_udp_reader *reader) {
 		// 	in the next gulp on another prot due to packet loss. As a result, reading the next packet will cause
 		// 	us to lose the target packet on the previous port, artifically pushing the target packet higher later on.
 		// 	Far too much work to try fix it, but worth remembering.
+		lastPacket = currentPacket;
 		while (currentPacket < reader->meta->lastPacket) {
 			VERBOSE(printf("lofar_udp_skip_to_packet: scan at %ld...\n", currentPacket););
 
 			// Account for packet desync between ports, don't check on the first iteration
 			if (scanning) {
 	 			for (int portInner = 0; portInner < reader->meta->numPorts; portInner++) {
-					reader->meta->portLastDroppedPackets[portInner] = (currentPacket + reader->meta->packetsPerIteration) - lofar_get_packet_number(&(reader->meta->inputData[portInner][lastPacketOffset]));
+					reader->meta->portLastDroppedPackets[portInner] = (lastPacket + reader->meta->packetsPerIteration) - lofar_get_packet_number(&(reader->meta->inputData[portInner][lastPacketOffset]));
 				}
 			}
 
@@ -189,6 +190,7 @@ int lofar_udp_skip_to_packet(lofar_udp_reader *reader) {
 			if (returnVal > 0) return returnVal;
 
 			// Get the new last packet
+			lastPacket = currentPacket;
 			currentPacket = lofar_get_packet_number(&(reader->meta->inputData[port][lastPacketOffset]));
 
 			// Print a status update to the CLI
