@@ -1409,8 +1409,8 @@ int lofar_udp_shift_remainder_packets(lofar_udp_reader *reader, const int shiftP
 			if (reader->compressedReader) {
 				if ((long) reader->decompressionTracker[port].pos > meta->portPacketLength[port] * meta->packetsPerIteration) {
 					byteShift += reader->decompressionTracker[port].pos - meta->portPacketLength[port] * meta->packetsPerIteration;
-					reader->decompressionTracker[port].pos = destOffset + byteShift;
 				}
+				reader->decompressionTracker[port].pos = destOffset + byteShift;
 				VERBOSE(if (meta->VERBOSE) printf("Compressed offset: P: %d, SO: %ld, DO: %d, BS: %ld IDO: %ld\n", port, sourceOffset, destOffset, byteShift, destOffset + byteShift));
 
 			}
