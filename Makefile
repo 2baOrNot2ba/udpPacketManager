@@ -13,7 +13,7 @@ LIB_VER = 0.3
 CLI_VER = 0.2
 
 # Detemrine the max threads per socket to speed up execution via OpenMP with ICC (GCC falls over if we set too many)
-THREADS = $(shell cat /proc/cpuinfo | uniq | grep -m 2 "siblings" | cut -d ":" -f 2 | sort --numeric --unique | awk '{$1=$1};1')
+THREADS = $(shell cat /proc/cpuinfo | uniq | grep -m 2 "siblings" | cut -d ":" -f 2 | sort --numeric --unique | tr -d ' ' | awk '{print $1}')
 
 CFLAGS 	+= -march=native -W -Wall -O3 -march=native -DVERSION=$(LIB_VER) -DVERSIONCLI=$(CLI_VER) -fPIC # -DBENCHMARK -g -DALLOW_VERBOSE #-D__SLOWDOWN
 
