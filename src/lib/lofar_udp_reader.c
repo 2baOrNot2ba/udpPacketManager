@@ -174,13 +174,15 @@ int lofar_udp_skip_to_packet(lofar_udp_reader *reader) {
 		while (currentPacket < reader->meta->lastPacket) {
 			VERBOSE(printf("lofar_udp_skip_to_packet: scan at %ld...\n", currentPacket););
 
+			// Account for packet desync between ports, don't check on the first iteration
+			if (scanning) {
+	 			for (int portInner = 0; portInner < reader->meta->numPorts; portInner++) {
+					reader->meta->portLastDroppedPackets[portInner] = (currentPacket + reader->meta->packetsPerIteration) - lofar_get_packet_number(&(reader->meta->inputData[portInner][lastPacketOffset]));
+				}
+			}
+
 			// Set an int so we can update the progress line later
 			scanning = 1;
-
-			// Account for packet desync between ports
-			for (int portInner = 0; portInner < reader->meta->numPorts; portInner++) {
-				reader->meta->portLastDroppedPackets[portInner] = (currentPacket + reader->meta->packetsPerIteration) - lofar_get_packet_number(&(reader->meta->inputData[portInner][lastPacketOffset]));
-			}
 
 			// Read in a new block of data on all ports, error check
 			returnVal = lofar_udp_reader_read_step(reader);
