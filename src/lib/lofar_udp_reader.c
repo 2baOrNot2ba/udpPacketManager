@@ -1358,7 +1358,7 @@ int lofar_udp_realign_data(lofar_udp_reader *reader) {
  */
 int lofar_udp_shift_remainder_packets(lofar_udp_reader *reader, const int shiftPackets[], const int handlePadding) {
 
-	int returnVal = 0;
+	int returnVal = 0, fixBuffer = 0;
 	int packetShift, destOffset, portPacketLength;
 	long byteShift, sourceOffset;
 
@@ -1372,9 +1372,15 @@ int lofar_udp_shift_remainder_packets(lofar_udp_reader *reader, const int shiftP
 	for (int port = 0; port < meta->numPorts; port++) {
 		meta->inputDataOffset[port] = 0;
 		totalShift += shiftPackets[port];
+
+		if (reader->compressedReader) {
+			if ((long) reader->decompressionTracker[port].pos > meta->portPacketLength[port] * meta->packetsPerIteration) {
+				fixBuffer = 1;
+			}
+		}
 	}
 
-	if (totalShift < 1) return 0;
+	if (totalShift < 1 && fixBuffer == 0) return 0;
 
 
 	// Shift the data on each port
@@ -1386,7 +1392,7 @@ int lofar_udp_shift_remainder_packets(lofar_udp_reader *reader, const int shiftP
 		VERBOSE(if (meta->VERBOSE) printf("shift_remainder: Port %d packet shift %d padding %d\n", port, packetShift, handlePadding));
 
  		// If we have packet shift or want to copy the final packet for future refernece
-		if (packetShift > 0 || handlePadding == 1) {
+		if (packetShift > 0 || handlePadding == 1 || fixBuffer == 1) {
 
 			// Negative shift -> negative packet loss -> out of order data -> do nothing, we'll  drop a few packets and resume work
 			if (packetShift < 0) {
